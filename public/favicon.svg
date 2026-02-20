@@ -1,13 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <!-- Enso circle only - for favicon -->
-  <path d="M 53 8
-    C 72 7, 88 18, 93 35
-    C 99 53, 94 72, 80 84
-    C 66 96, 45 97, 30 88
-    C 15 78, 7 60, 10 42
-    C 13 25, 25 12, 42 8"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <!-- Enso brush stroke - matches logo -->
+  <path d="M 205 45
+    C 280 42, 340 75, 360 140
+    C 382 210, 365 280, 310 330
+    C 255 380, 175 385, 115 345
+    C 55 305, 30 235, 40 165
+    C 50 100, 95 55, 160 43"
     stroke="#1a1a1a"
-    stroke-width="7"
+    stroke-width="26"
     stroke-linecap="round"
     fill="none"/>
+  <path d="M 205 45
+    C 280 42, 340 75, 360 140
+    C 382 210, 365 280, 310 330
+    C 255 380, 175 385, 115 345
+    C 55 305, 30 235, 40 165
+    C 50 100, 95 55, 160 43"
+    stroke="#2a2a2a"
+    stroke-width="18"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.3"/>
+  <path d="M 160 43 C 145 45, 130 50, 125 55"
+    stroke="#1a1a1a"
+    stroke-width="14"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.6"/>
 </svg>
