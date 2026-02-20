@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Enso circle only - for favicon -->
+  <path d="M 53 8
+    C 72 7, 88 18, 93 35
+    C 99 53, 94 72, 80 84
+    C 66 96, 45 97, 30 88
+    C 15 78, 7 60, 10 42
+    C 13 25, 25 12, 42 8"
+    stroke="#1a1a1a"
+    stroke-width="7"
+    stroke-linecap="round"
+    fill="none"/>
+</svg>

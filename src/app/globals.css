@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-stone-900 font-body;
+  }
+  h1, h2, h3, h4 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-saffron-600 text-white rounded-lg hover:bg-saffron-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply px-4 py-2 bg-earth-100 text-earth-800 rounded-lg hover:bg-earth-200 transition-colors font-medium;
+  }
+  .btn-pro {
+    @apply px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium;
+  }
+  .btn-con {
+    @apply px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium;
+  }
+  .card {
+    @apply bg-white rounded-xl border border-stone-200 shadow-sm;
+  }
+  .input-field {
+    @apply w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:border-transparent bg-white;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+}
+
+/* Debate tree connecting lines */
+.tree-line-pro {
+  border-left: 2px solid #16a34a;
+}
+.tree-line-con {
+  border-left: 2px solid #dc2626;
+}
+.tree-line-thesis {
+  border-left: 2px solid #a97847;
+}
+
+/* Impact vote bar */
+.vote-bar {
+  @apply h-1.5 rounded-full transition-all duration-300;
+}
+
+/* Mandala decorative element */
+.mandala-bg {
+  background-image: radial-gradient(circle at 50% 50%, rgba(169, 120, 71, 0.03) 0%, transparent 70%);
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
