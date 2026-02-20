@@ -1,54 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
-  <!-- Enso brushstroke circle - swirling, overlapping style -->
-  <!-- Main thick brushstroke -->
-  <path d="M 220 55
-    C 300 50, 365 100, 370 180
-    C 376 260, 330 335, 250 355
-    C 170 375, 85 340, 55 265
-    C 25 190, 50 100, 130 60
-    C 160 47, 190 48, 210 52"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none">
+  <!-- Enso (Zen circle) brush stroke -->
+  <path d="M 205 45
+    C 280 42, 340 75, 360 140
+    C 382 210, 365 280, 310 330
+    C 255 380, 175 385, 115 345
+    C 55 305, 30 235, 40 165
+    C 50 100, 95 55, 160 43"
     stroke="#1a1a1a"
-    stroke-width="22"
+    stroke-width="26"
     stroke-linecap="round"
     fill="none"/>
 
-  <!-- Overlapping swirl at top - creates the characteristic enso opening -->
-  <path d="M 210 52
-    C 240 45, 275 50, 295 65
-    C 315 80, 330 105, 335 130"
-    stroke="#1a1a1a"
+  <!-- Thinner overlapping stroke for brush texture variation -->
+  <path d="M 205 45
+    C 280 42, 340 75, 360 140
+    C 382 210, 365 280, 310 330
+    C 255 380, 175 385, 115 345
+    C 55 305, 30 235, 40 165
+    C 50 100, 95 55, 160 43"
+    stroke="#2a2a2a"
     stroke-width="18"
     stroke-linecap="round"
     fill="none"
-    opacity="0.7"/>
+    opacity="0.3"/>
 
-  <!-- Inner subtle texture stroke -->
-  <path d="M 220 55
-    C 300 50, 365 100, 370 180
-    C 376 260, 330 335, 250 355
-    C 170 375, 85 340, 55 265
-    C 25 190, 50 100, 130 60"
-    stroke="#2a2a2a"
-    stroke-width="12"
-    stroke-linecap="round"
-    fill="none"
-    opacity="0.2"/>
-
-  <!-- Taper at the brush entry -->
-  <path d="M 130 60 C 115 67, 100 78, 90 92"
+  <!-- Slight taper at opening - thinner trailing stroke end -->
+  <path d="M 160 43 C 145 45, 130 50, 125 55"
     stroke="#1a1a1a"
-    stroke-width="12"
+    stroke-width="14"
     stroke-linecap="round"
     fill="none"
-    opacity="0.5"/>
+    opacity="0.6"/>
 
-  <!-- "Anekanta" text centered inside the circle -->
-  <text x="200" y="210"
+  <!-- ANEKANTA text - serif, tracked -->
+  <text x="200" y="430"
     text-anchor="middle"
-    dominant-baseline="central"
-    font-family="'Cormorant Garamond', 'Georgia', 'Times New Roman', serif"
-    font-size="52"
-    font-weight="500"
-    letter-spacing="2"
-    fill="#1a1a1a">Anekanta</text>
+    font-family="'Cormorant Garamond', 'Times New Roman', 'Georgia', serif"
+    font-size="38"
+    font-weight="600"
+    letter-spacing="10"
+    fill="#1a1a1a">ANEKANTA</text>
+
+  <!-- अनेकान्त Devanagari -->
+  <text x="200" y="472"
+    text-anchor="middle"
+    font-family="'Tiro Devanagari Hindi', 'Noto Sans Devanagari', serif"
+    font-size="26"
+    fill="#1a1a1a">अनेकान्त</text>
 </svg>
