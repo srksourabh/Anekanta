@@ -36,8 +36,8 @@ export function ActivityFeed({ debateId, limit = 15 }: ActivityFeedProps) {
       .finally(() => setLoading(false));
   }, [debateId, limit]);
 
-  if (loading) return <div className="text-sm text-stone-400 p-4">Loading activity...</div>;
-  if (activities.length === 0) return <div className="text-sm text-stone-400 p-4">No activity yet</div>;
+  if (loading) return <div className="text-sm text-stone-400 p-4">{t('loading_activity')}</div>;
+  if (activities.length === 0) return <div className="text-sm text-stone-400 p-4">{t('no_activity_yet')}</div>;
 
   return (
     <div className="space-y-0">
@@ -53,7 +53,7 @@ export function ActivityFeed({ debateId, limit = 15 }: ActivityFeedProps) {
                 <span className="font-medium" style={{ color: a.user_color }}>{a.user_name}</span>
                 {' '}{getActionLabel(a.action)}
                 {!debateId && a.debate_title && (
-                  <> in <Link href={`/debates/${a.debate_id}`} className="text-saffron-600 hover:underline">{a.debate_title}</Link></>
+                  <> {t('activity_in')} <Link href={`/debates/${a.debate_id}`} className="text-saffron-600 hover:underline">{a.debate_title}</Link></>
                 )}
                 {meta?.type && (
                   <span className={`ml-1 badge text-[9px] ${meta.type === 'pro' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{meta.type === 'pro' ? t('debate_pro') : t('debate_con')}</span>

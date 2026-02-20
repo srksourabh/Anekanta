@@ -50,7 +50,7 @@ export default function AdminPage() {
     setFlagged(prev => prev.map(f => f.id === id ? { ...f, status: action } : f));
   };
 
-  if (loading) return <div className="max-w-4xl mx-auto p-8 text-center text-earth-500">Loading...</div>;
+  if (loading) return <div className="max-w-4xl mx-auto p-8 text-center text-earth-500">{t('loading')}</div>;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -58,7 +58,7 @@ export default function AdminPage() {
 
       <div className="flex gap-4 mb-6">
         <button onClick={() => setTab('overview')} className={`px-4 py-2 rounded-lg font-medium ${tab === 'overview' ? 'bg-saffron-600 text-white' : 'bg-earth-100 text-earth-700'}`}>
-          Overview
+          {t('admin_overview')}
         </button>
         <button onClick={() => setTab('moderation')} className={`px-4 py-2 rounded-lg font-medium ${tab === 'moderation' ? 'bg-saffron-600 text-white' : 'bg-earth-100 text-earth-700'}`}>
           {t('admin_moderation')} {flagged.filter(f => f.status === 'pending').length > 0 && <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{flagged.filter(f => f.status === 'pending').length}</span>}
@@ -90,7 +90,7 @@ export default function AdminPage() {
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <span className="text-xs font-medium uppercase bg-earth-200 text-earth-700 px-2 py-0.5 rounded">{item.content_type}</span>
-                  <span className="ml-2 text-xs text-earth-500">Score: {item.score.toFixed(2)}</span>
+                  <span className="ml-2 text-xs text-earth-500">{t('admin_score')} {item.score.toFixed(2)}</span>
                   <span className={`ml-2 text-xs px-2 py-0.5 rounded ${item.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : item.status === 'actioned' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>{item.status}</span>
                 </div>
                 <span className="text-xs text-earth-400">{new Date(item.created_at).toLocaleDateString()}</span>
@@ -98,8 +98,8 @@ export default function AdminPage() {
               <p className="text-sm text-earth-700 mb-2">{item.reason}</p>
               {item.status === 'pending' && (
                 <div className="flex gap-2">
-                  <button onClick={() => handleAction(item.id, 'dismissed')} className="text-xs px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Dismiss</button>
-                  <button onClick={() => handleAction(item.id, 'actioned')} className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Take Action</button>
+                  <button onClick={() => handleAction(item.id, 'dismissed')} className="text-xs px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">{t('admin_dismiss')}</button>
+                  <button onClick={() => handleAction(item.id, 'actioned')} className="text-xs px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">{t('admin_take_action')}</button>
                 </div>
               )}
             </div>

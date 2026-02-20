@@ -53,8 +53,8 @@ export default function DebatePage() {
     await loadDebate();
   };
 
-  if (loading) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-400">Loading debate...</div>;
-  if (!debate) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-500">Debate not found</div>;
+  if (loading) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-400">{t('loading_debate')}</div>;
+  if (!debate) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-500">{t('debate_not_found')}</div>;
 
   const proCount = thesis?.children?.filter((c: any) => c.type === 'pro').length || 0;
   const conCount = thesis?.children?.filter((c: any) => c.type === 'con').length || 0;
@@ -63,7 +63,7 @@ export default function DebatePage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/debates" className="text-sm text-stone-500 hover:text-stone-700 mb-2 inline-block">&larr; All debates</Link>
+        <Link href="/debates" className="text-sm text-stone-500 hover:text-stone-700 mb-2 inline-block">{t('all_debates_link')}</Link>
         <div className="flex items-start gap-2 mb-2">
           <span className="badge bg-earth-100 text-earth-700 text-[10px] capitalize mt-1">{getCategoryLabel(debate.category)}</span>
           <h1 className="text-2xl md:text-3xl font-heading font-bold text-stone-800">{debate.title}</h1>
@@ -108,7 +108,7 @@ export default function DebatePage() {
         <div>
           {!user && (
             <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
-              <Link href="/auth/login" className="font-medium underline">Sign in</Link> to add arguments, vote, and comment.
+              <Link href="/auth/login" className="font-medium underline">{t('sign_in_prompt')}</Link> {t('sign_in_to_participate')}
             </div>
           )}
           {thesis ? (
@@ -120,7 +120,7 @@ export default function DebatePage() {
               isLoggedIn={!!user}
             />
           ) : (
-            <p className="text-stone-400">No thesis found.</p>
+            <p className="text-stone-400">{t('no_thesis_found')}</p>
           )}
         </div>
       ) : (

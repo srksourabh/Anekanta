@@ -22,7 +22,7 @@ interface ModerationState {
 
 export default function NewDebatePage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, getCategoryLabel } = useLanguage();
   
   const [title, setTitle] = useState('');
   const [tagline, setTagline] = useState('');
@@ -61,12 +61,12 @@ export default function NewDebatePage() {
     e.preventDefault();
     
     if (!title.trim() || !tagline.trim() || !thesis.trim()) {
-      setError('Required fields are missing');
+      setError(t('error_required_fields'));
       return;
     }
 
     if (hasBlockedContent) {
-      setError('Content contains blocked material');
+      setError(t('error_blocked_content'));
       return;
     }
 
@@ -123,7 +123,7 @@ export default function NewDebatePage() {
 
       router.push(`/debates/${debateId}`);
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(t('error_unexpected'));
       setSubmitting(false);
     }
   };
@@ -139,9 +139,9 @@ export default function NewDebatePage() {
         'bg-yellow-50 text-yellow-700 border border-yellow-200'
       }`}>
         <div className="font-medium">
-          {result.action === 'block' ? 'Content Blocked' :
-           result.action === 'review' ? 'Flagged for Review' :
-           'Warning'}
+          {result.action === 'block' ? t('mod_content_blocked') :
+           result.action === 'review' ? t('mod_flagged_review') :
+           t('mod_warning_label')}
         </div>
         <ul className="mt-1 text-xs space-y-0.5">
           {result.flags.map((flag, i) => (
@@ -155,7 +155,7 @@ export default function NewDebatePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-heading font-bold text-earth-900 mb-2">{t('new_debate_title')}</h1>
-      <p className="text-earth-500 mb-6 text-sm">Structurally present your thesis with supporting arguments for a meaningful debate</p>
+      <p className="text-earth-500 mb-6 text-sm">{t('new_debate_subtitle')}</p>
       
       <form onSubmit={handleSubmit} className="card p-6 space-y-6">
         {error && (
@@ -175,7 +175,7 @@ export default function NewDebatePage() {
             maxLength={200}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">A clear, debatable statement</p>
+          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_title')}</p>
           {renderModerationWarning('title', moderation.title)}
         </div>
 
@@ -191,7 +191,7 @@ export default function NewDebatePage() {
             maxLength={500}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">A brief summary to attract readers</p>
+          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_tagline')}</p>
           {renderModerationWarning('tagline', moderation.tagline)}
         </div>
 
@@ -207,14 +207,14 @@ export default function NewDebatePage() {
             maxLength={1000}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">State your main claim or proposition</p>
+          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_thesis')}</p>
           {renderModerationWarning('thesis', moderation.thesis)}
         </div>
 
         {/* Arguments */}
         <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold text-earth-900 mb-4">Supporting Arguments (Optional)</h2>
-          <p className="text-xs text-earth-500 mb-4">Provide up to 3 main supporting arguments</p>
+          <h2 className="text-lg font-semibold text-earth-900 mb-4">{t('new_debate_supporting_args')}</h2>
+          <p className="text-xs text-earth-500 mb-4">{t('new_debate_supporting_args_hint')}</p>
 
           {[
             { num: 1, value: argument1, setter: setArgument1, mod: moderation.argument1, key: 'new_debate_form_arg1' },
@@ -251,7 +251,7 @@ export default function NewDebatePage() {
             maxLength={800}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">Summarize your position</p>
+          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_conclusion')}</p>
           {renderModerationWarning('conclusion', moderation.conclusion)}
         </div>
 
@@ -266,7 +266,7 @@ export default function NewDebatePage() {
           >
             {CATEGORIES.map(c => (
               <option key={c} value={c} className="capitalize">
-                {c}
+                {getCategoryLabel(c)}
               </option>
             ))}
           </select>
@@ -290,7 +290,7 @@ export default function NewDebatePage() {
         {/* Warnings indicator */}
         {hasWarnings && !hasBlockedContent && (
           <div className="p-3 bg-amber-50 text-amber-700 text-sm rounded-lg border border-amber-200">
-            Content flagged for moderation review
+            {t('mod_content_flagged')}
           </div>
         )}
 

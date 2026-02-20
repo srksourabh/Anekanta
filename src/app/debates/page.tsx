@@ -37,7 +37,7 @@ export default function DebatesPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-heading font-bold text-stone-800">{t('debates_title')}</h1>
-        <Link href="/debates/new" className="btn-primary">Start Debate</Link>
+        <Link href="/debates/new" className="btn-primary">{t('start_debate_btn')}</Link>
       </div>
 
       {/* Filters */}
@@ -76,11 +76,11 @@ export default function DebatesPage() {
 
       {/* Results */}
       {loading ? (
-        <div className="text-center py-12 text-stone-400">Loading...</div>
+        <div className="text-center py-12 text-stone-400">{t('loading')}</div>
       ) : debates.length === 0 ? (
         <div className="card p-8 text-center">
           <p className="text-stone-500 mb-4">{t('debates_no_results')}{search ? ` "${search}"` : ''}</p>
-          <Link href="/debates/new" className="btn-primary">Start one</Link>
+          <Link href="/debates/new" className="btn-primary">{t('start_one')}</Link>
         </div>
       ) : (
         <>
