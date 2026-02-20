@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { VoteBar } from './VoteBar';
 import { CommentSection } from './CommentSection';
 import { useLanguage } from '@/components/LanguageProvider';
+import { TranslateButton } from '@/components/TranslateButton';
 
 interface ArgumentNodeProps {
   arg: any;
@@ -67,7 +68,10 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
                 {formatDistanceToNow(new Date(arg.created_at), { addSuffix: true })}
               </span>
             </div>
-            <p className="text-stone-800 text-[15px] leading-relaxed">{arg.content}</p>
+            <p className="text-stone-800 text-[15px] leading-relaxed">
+              {arg.content}
+              <TranslateButton text={arg.content} />
+            </p>
             <div className="flex items-center gap-4 mt-3">
               <VoteBar
                 argId={arg.id}
@@ -88,7 +92,7 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
                 </button>
                 {hasChildren && (
                   <button onClick={() => setExpanded(!expanded)} className="text-stone-500 hover:text-stone-700 text-xs">
-                    {expanded ? 'Collapse' : `Expand (${proChildren.length + conChildren.length})`}
+                    {expanded ? t('arg_collapse') : `${t('arg_expand')} (${proChildren.length + conChildren.length})`}
                   </button>
                 )}
               </div>
@@ -116,7 +120,7 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
                 disabled={submitting || !newContent.trim()}
                 className={showAddPro ? 'btn-pro' : 'btn-con'}
               >
-                {submitting ? 'Submitting...' : t('debate_submit')}
+                {submitting ? t('arg_submitting') : t('debate_submit')}
               </button>
               <button onClick={() => { setShowAddPro(false); setShowAddCon(false); setNewContent(''); }} className="text-xs text-stone-500 hover:text-stone-700">{t('debate_cancel')}</button>
             </div>

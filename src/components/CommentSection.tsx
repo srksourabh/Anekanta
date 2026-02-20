@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLanguage } from '@/components/LanguageProvider';
+import { TranslateButton } from '@/components/TranslateButton';
 
 interface CommentSectionProps {
   argumentId: string;
@@ -44,10 +45,10 @@ export function CommentSection({ argumentId, isLoggedIn }: CommentSectionProps) 
   return (
     <div className="mt-3 pt-3 border-t border-stone-200">
       {loading ? (
-        <p className="text-xs text-stone-400">Loading comments...</p>
+        <p className="text-xs text-stone-400">{t('loading_comments')}</p>
       ) : (
         <>
-          {comments.length === 0 && <p className="text-xs text-stone-400 mb-2">No comments yet</p>}
+          {comments.length === 0 && <p className="text-xs text-stone-400 mb-2">{t('no_comments_yet')}</p>}
           <div className="space-y-2 mb-3">
             {comments.map(c => (
               <div key={c.id} className="flex gap-2">
@@ -59,7 +60,10 @@ export function CommentSection({ argumentId, isLoggedIn }: CommentSectionProps) 
                     <span className="text-xs font-medium" style={{ color: c.author_color }}>{authorLabel(c)}</span>
                     <span className="text-[10px] text-stone-400">{formatDistanceToNow(new Date(c.created_at), { addSuffix: true })}</span>
                   </div>
-                  <p className="text-xs text-stone-700 mt-0.5">{c.content}</p>
+                  <p className="text-xs text-stone-700 mt-0.5">
+                    {c.content}
+                    <TranslateButton text={c.content} />
+                  </p>
                 </div>
               </div>
             ))}
