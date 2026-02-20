@@ -76,7 +76,7 @@ export default function CommunityPage() {
       {/* Members */}
       <div className="mb-4">
         <h2 className="text-lg font-heading font-bold text-stone-700 mb-4">{t('community_members')}</h2>
-        <div className="flex gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <input
             type="text"
             value={search}

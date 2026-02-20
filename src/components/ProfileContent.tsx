@@ -35,7 +35,7 @@ export function ProfileContent({ user, stats, debates }: ProfileContentProps) {
           </div>
         </div>
         {user.bio && <p className="text-sm text-stone-600 mt-4">{user.bio}</p>}
-        <div className="grid grid-cols-4 gap-4 mt-4 pt-4 border-t border-stone-200 text-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-stone-200 text-center">
           {[
             { label: t('stats_debates'), value: stats.debates },
             { label: t('stats_arguments'), value: stats.arguments },

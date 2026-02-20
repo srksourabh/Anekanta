@@ -1,12 +1,26 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { LanguageProvider } from '@/components/LanguageProvider';
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
+
+export const viewport: Viewport = {
+  themeColor: '#1a3a3a',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'Anekanta — Many-Sided Truth',
   description: 'A place where people share thoughts and debate. Explore perspectives, build understanding.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Anekanta',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48' },
@@ -26,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <LanguageProvider>
+          <ServiceWorkerRegistration />
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="mandala-bg flex-1">

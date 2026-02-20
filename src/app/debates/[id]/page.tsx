@@ -69,7 +69,7 @@ export default function DebatePage() {
           <h1 className="text-2xl md:text-3xl font-heading font-bold text-stone-800">{debate.title}</h1>
         </div>
         {debate.description && <p className="text-stone-500 mb-3 max-w-3xl">{debate.description}</p>}
-        <div className="flex items-center gap-4 text-xs text-stone-400">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-400">
           <span>{t('debates_by')} <span className="font-medium" style={{ color: debate.author_color }}>{debate.author_name}</span></span>
           <span>{formatDistanceToNow(new Date(debate.created_at), { addSuffix: true })}</span>
           <span>{debate.argument_count} {t('debates_arguments')}</span>

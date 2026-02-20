@@ -58,7 +58,7 @@ export function HomeContent({ featured, stats }: HomeContentProps) {
       {/* Stats */}
       <section className="border-b border-stone-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-4 gap-4 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
               { label: t('stats_debates'), value: stats.debates },
               { label: t('stats_arguments'), value: stats.arguments },

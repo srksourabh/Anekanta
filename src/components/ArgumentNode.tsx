@@ -46,11 +46,11 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
   const authorLabel = arg.is_anonymous ? t('debate_anonymous') : arg.author_name;
 
   return (
-    <div className={`${depth > 0 ? borderClass + ' pl-4 ml-2' : ''}`}>
+    <div className={`${depth > 0 ? borderClass + ' pl-2 sm:pl-4 ml-1 sm:ml-2' : ''}`}>
       <div className={`card ${bgClass} p-4 mb-2`}>
         <div className="flex items-start gap-3">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mb-1.5">
               {arg.type !== 'thesis' && (
                 <span className={`badge ${labelColor} text-[10px] uppercase tracking-wider`}>
                   {arg.type === 'pro' ? t('debate_pro') : t('debate_con')}
@@ -80,7 +80,7 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
                 onVote={onVote}
                 isLoggedIn={isLoggedIn}
               />
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
                 {isLoggedIn && (
                   <>
                     <button onClick={() => { setShowAddPro(!showAddPro); setShowAddCon(false); }} className="btn-pro">+ {t('debate_pro')}</button>
