@@ -1,121 +1,126 @@
-import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
-import path from 'path';
-import fs from 'fs';
+import { createClient, type Client, type Row } from '@libsql/client';
 
-const DB_PATH = process.env.DATABASE_PATH || './data/anekanta.db';
-
+let client: Client | null = null;
 let db: CompatDb | null = null;
-let initPromise: Promise<CompatDb> | null = null;
+
+function getClient(): Client {
+  if (!client) {
+    const url = process.env.TURSO_DATABASE_URL;
+    const authToken = process.env.TURSO_AUTH_TOKEN;
+    if (!url) throw new Error('TURSO_DATABASE_URL environment variable is required');
+    client = createClient({ url, authToken: authToken || undefined });
+  }
+  return client;
+}
 
 /**
- * Compatibility wrapper around sql.js that mimics better-sqlite3's synchronous API.
- * All existing code using db.prepare().run/get/all() and db.exec() works unchanged.
+ * Convert a libsql Row (array-like with column info) to a plain object.
+ */
+function rowToObject(row: Row, columns: string[]): Record<string, unknown> {
+  const obj: Record<string, unknown> = {};
+  for (let i = 0; i < columns.length; i++) {
+    obj[columns[i]] = row[i];
+  }
+  return obj;
+}
+
+/**
+ * Compatibility wrapper around @libsql/client that mimics the synchronous
+ * prepare().run/get/all() API used throughout the codebase.
+ *
+ * Since libsql is async but our route handlers already await getDb(),
+ * we make CompatStatement methods async-behind-sync by storing promises
+ * and resolving them. The caller pattern `db.prepare(sql).run(...)` becomes
+ * `await db.prepare(sql).run(...)` — but since all our callers already
+ * use async functions, this works with minimal changes.
+ *
+ * IMPORTANT: All .run(), .get(), .all() calls now return Promises.
+ * Existing code must `await` them.
  */
 class CompatStatement {
-  private sqlDb: SqlJsDatabase;
+  private client: Client;
   private sql: string;
-  private saveFn: () => void;
 
-  constructor(sqlDb: SqlJsDatabase, sql: string, saveFn: () => void) {
-    this.sqlDb = sqlDb;
+  constructor(client: Client, sql: string) {
+    this.client = client;
     this.sql = sql;
-    this.saveFn = saveFn;
   }
 
-  run(...params: any[]) {
+  async run(...params: any[]): Promise<{ changes: number }> {
     const flat = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-    this.sqlDb.run(this.sql, flat.length > 0 ? flat : undefined);
-    this.saveFn();
-    return { changes: this.sqlDb.getRowsModified() };
+    const result = await this.client.execute({ sql: this.sql, args: flat });
+    return { changes: result.rowsAffected };
   }
 
-  get(...params: any[]): any {
+  async get(...params: any[]): Promise<any> {
     const flat = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-    const stmt = this.sqlDb.prepare(this.sql);
-    if (flat.length > 0) stmt.bind(flat);
-    if (stmt.step()) {
-      const cols = stmt.getColumnNames();
-      const vals = stmt.get();
-      stmt.free();
-      const row: any = {};
-      for (let i = 0; i < cols.length; i++) row[cols[i]] = vals[i];
-      return row;
+    const result = await this.client.execute({ sql: this.sql, args: flat });
+    if (result.rows.length === 0) return undefined;
+    const columns = result.columns;
+    const row = result.rows[0];
+    const obj: any = {};
+    for (let i = 0; i < columns.length; i++) {
+      obj[columns[i]] = row[i];
     }
-    stmt.free();
-    return undefined;
+    return obj;
   }
 
-  all(...params: any[]): any[] {
+  async all(...params: any[]): Promise<any[]> {
     const flat = params.length === 1 && Array.isArray(params[0]) ? params[0] : params;
-    const results: any[] = [];
-    const stmt = this.sqlDb.prepare(this.sql);
-    if (flat.length > 0) stmt.bind(flat);
-    while (stmt.step()) {
-      const cols = stmt.getColumnNames();
-      const vals = stmt.get();
-      const row: any = {};
-      for (let i = 0; i < cols.length; i++) row[cols[i]] = vals[i];
-      results.push(row);
-    }
-    stmt.free();
-    return results;
+    const result = await this.client.execute({ sql: this.sql, args: flat });
+    const columns = result.columns;
+    return result.rows.map(row => {
+      const obj: any = {};
+      for (let i = 0; i < columns.length; i++) {
+        obj[columns[i]] = row[i];
+      }
+      return obj;
+    });
   }
 }
 
 class CompatDb {
-  private sqlDb: SqlJsDatabase;
-  private dbPath: string;
+  private client: Client;
 
-  constructor(sqlDb: SqlJsDatabase, dbPath: string) {
-    this.sqlDb = sqlDb;
-    this.dbPath = dbPath;
+  constructor(client: Client) {
+    this.client = client;
   }
 
   prepare(sql: string): CompatStatement {
-    return new CompatStatement(this.sqlDb, sql, () => this.save());
+    return new CompatStatement(this.client, sql);
   }
 
-  exec(sql: string) {
-    this.sqlDb.exec(sql);
-    this.save();
+  async exec(sql: string) {
+    // Split multiple statements and execute them via batch
+    const statements = sql
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+    for (const stmt of statements) {
+      await this.client.execute(stmt);
+    }
   }
 
-  pragma(pragma: string) {
-    this.sqlDb.exec(`PRAGMA ${pragma}`);
-  }
-
-  save() {
-    const data = this.sqlDb.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(this.dbPath, buffer);
-  }
-
-  close() {
-    this.save();
-    this.sqlDb.close();
+  async pragma(pragma: string) {
+    try {
+      await this.client.execute(`PRAGMA ${pragma}`);
+    } catch {
+      // Turso may not support all pragmas — ignore silently
+    }
   }
 }
+
+let initPromise: Promise<CompatDb> | null = null;
 
 export async function getDb(): Promise<CompatDb> {
   if (db) return db;
 
   if (!initPromise) {
     initPromise = (async () => {
-      const SQL = await initSqlJs();
-      const dir = path.dirname(DB_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-      let sqlDb: SqlJsDatabase;
-      if (fs.existsSync(DB_PATH)) {
-        const buffer = fs.readFileSync(DB_PATH);
-        sqlDb = new SQL.Database(buffer);
-      } else {
-        sqlDb = new SQL.Database();
-      }
-
-      db = new CompatDb(sqlDb, DB_PATH);
-      db.pragma('foreign_keys = ON');
-      initializeSchema(db);
+      const c = getClient();
+      db = new CompatDb(c);
+      await db.pragma('foreign_keys = ON');
+      await initializeSchema(db);
       return db;
     })();
   }
@@ -123,8 +128,8 @@ export async function getDb(): Promise<CompatDb> {
   return initPromise;
 }
 
-function initializeSchema(database: CompatDb) {
-  database.exec(`
+async function initializeSchema(database: CompatDb) {
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -136,8 +141,10 @@ function initializeSchema(database: CompatDb) {
       role TEXT DEFAULT 'user',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS debates (
       id TEXT PRIMARY KEY,
       title TEXT NOT NULL,
@@ -151,8 +158,10 @@ function initializeSchema(database: CompatDb) {
       conclusion TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS arguments (
       id TEXT PRIMARY KEY,
       debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
@@ -165,8 +174,10 @@ function initializeSchema(database: CompatDb) {
       is_anonymous INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS votes (
       id TEXT PRIMARY KEY,
       argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
@@ -174,8 +185,10 @@ function initializeSchema(database: CompatDb) {
       value INTEGER NOT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       UNIQUE(argument_id, user_id)
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS comments (
       id TEXT PRIMARY KEY,
       argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
@@ -183,8 +196,10 @@ function initializeSchema(database: CompatDb) {
       content TEXT NOT NULL,
       is_anonymous INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS activity (
       id TEXT PRIMARY KEY,
       debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
@@ -194,8 +209,10 @@ function initializeSchema(database: CompatDb) {
       target_id TEXT NOT NULL,
       metadata TEXT DEFAULT '{}',
       created_at TEXT DEFAULT (datetime('now'))
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS flagged_content (
       id TEXT PRIMARY KEY,
       content_type TEXT NOT NULL,
@@ -207,8 +224,10 @@ function initializeSchema(database: CompatDb) {
       created_at TEXT DEFAULT (datetime('now')),
       resolved_at TEXT,
       resolved_by TEXT
-    );
+    )
+  `);
 
+  await database.exec(`
     CREATE TABLE IF NOT EXISTS reactions (
       id TEXT PRIMARY KEY,
       argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
@@ -216,15 +235,16 @@ function initializeSchema(database: CompatDb) {
       emoji TEXT NOT NULL,
       created_at TEXT DEFAULT (datetime('now')),
       UNIQUE(argument_id, user_id, emoji)
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id);
-    CREATE INDEX IF NOT EXISTS idx_arguments_parent ON arguments(parent_id);
-    CREATE INDEX IF NOT EXISTS idx_votes_argument ON votes(argument_id);
-    CREATE INDEX IF NOT EXISTS idx_comments_argument ON comments(argument_id);
-    CREATE INDEX IF NOT EXISTS idx_activity_debate ON activity(debate_id);
-    CREATE INDEX IF NOT EXISTS idx_debates_category ON debates(category);
-    CREATE INDEX IF NOT EXISTS idx_flagged_status ON flagged_content(status);
-    CREATE INDEX IF NOT EXISTS idx_reactions_argument ON reactions(argument_id);
+    )
   `);
+
+  // Indexes - each as separate statement for Turso compatibility
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_parent ON arguments(parent_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_votes_argument ON votes(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_comments_argument ON comments(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_activity_debate ON activity(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_debates_category ON debates(category)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_flagged_status ON flagged_content(status)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_reactions_argument ON reactions(argument_id)`);
 }

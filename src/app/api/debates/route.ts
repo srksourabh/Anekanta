@@ -4,6 +4,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
 import { nanoid } from 'nanoid';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const db = await getDb();
   const url = new URL(req.url);
@@ -30,7 +32,7 @@ export async function GET(req: NextRequest) {
   if (sort === 'popular') orderBy = 'ORDER BY argument_count DESC';
   if (sort === 'active') orderBy = 'ORDER BY d.updated_at DESC';
 
-  const debates = db.prepare(`
+  const debates = await db.prepare(`
     SELECT d.*, u.display_name as author_name, u.avatar_color as author_color,
       (SELECT COUNT(*) FROM arguments WHERE debate_id = d.id) as argument_count,
       (SELECT COUNT(*) FROM votes v JOIN arguments a ON v.argument_id = a.id WHERE a.debate_id = d.id) as vote_count
@@ -41,7 +43,7 @@ export async function GET(req: NextRequest) {
     LIMIT ? OFFSET ?
   `).all(...params, limit, offset);
 
-  const total = db.prepare(`SELECT COUNT(*) as count FROM debates d ${where}`).get(...params) as any;
+  const total = await db.prepare(`SELECT COUNT(*) as count FROM debates d ${where}`).get(...params) as any;
 
   return NextResponse.json({ debates, total: total.count, page, pages: Math.ceil(total.count / limit) });
 }
@@ -64,18 +66,18 @@ export async function POST(req: NextRequest) {
   const debateId = nanoid();
   const thesisId = nanoid();
 
-  db.prepare(`INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion, is_anonymous) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  await db.prepare(`INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion, is_anonymous) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(debateId, title, description || '', thesis, user.id, category || 'general', tagline || '', conclusion || '', is_anonymous ? 1 : 0);
 
-  db.prepare(`INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth) VALUES (?, ?, NULL, ?, ?, 'thesis', 0)`)
+  await db.prepare(`INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth) VALUES (?, ?, NULL, ?, ?, 'thesis', 0)`)
     .run(thesisId, debateId, user.id, thesis);
 
   if (modResult.flags.length > 0) {
-    db.prepare('INSERT INTO flagged_content (id, content_type, content_id, author_id, reason, flags, score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    await db.prepare('INSERT INTO flagged_content (id, content_type, content_id, author_id, reason, flags, score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
       .run(nanoid(), 'debate', debateId, user.id, modResult.flags[0].detail, JSON.stringify(modResult.flags), modResult.score, 'pending');
   }
 
-  db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'created', 'debate', ?, ?)`)
+  await db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'created', 'debate', ?, ?)`)
     .run(nanoid(), debateId, user.id, debateId, JSON.stringify({ title }));
 
   return NextResponse.json({ id: debateId });

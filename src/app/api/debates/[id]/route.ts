@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const db = await getDb();
   const { id } = params;
   const user = await getCurrentUser();
 
-  const debate = db.prepare(`
+  const debate = await db.prepare(`
     SELECT d.*, u.display_name as author_name, u.avatar_color as author_color,
       (SELECT COUNT(*) FROM arguments WHERE debate_id = d.id) as argument_count,
       (SELECT COUNT(*) FROM votes v JOIN arguments a ON v.argument_id = a.id WHERE a.debate_id = d.id) as vote_count
@@ -18,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!debate) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   // Get all arguments for this debate
-  const args = db.prepare(`
+  const args = await db.prepare(`
     SELECT a.*, u.display_name as author_name, u.avatar_color as author_color,
       (SELECT COUNT(*) FROM comments WHERE argument_id = a.id) as comment_count
     FROM arguments a JOIN users u ON a.author_id = u.id
@@ -29,7 +31,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // Get user's votes if logged in
   let userVotes: Record<string, number> = {};
   if (user) {
-    const votes = db.prepare(`
+    const votes = await db.prepare(`
       SELECT v.argument_id, v.value FROM votes v
       JOIN arguments a ON v.argument_id = a.id
       WHERE a.debate_id = ? AND v.user_id = ?

@@ -4,9 +4,11 @@ import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
 import { nanoid } from 'nanoid';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const db = await getDb();
-  const comments = db.prepare(`
+  const comments = await db.prepare(`
     SELECT c.*, u.display_name as author_name, u.avatar_color as author_color
     FROM comments c JOIN users u ON c.author_id = u.id
     WHERE c.argument_id = ?
@@ -29,22 +31,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   }
 
   const db = await getDb();
-  const arg = db.prepare('SELECT * FROM arguments WHERE id = ?').get(params.id) as any;
+  const arg = await db.prepare('SELECT * FROM arguments WHERE id = ?').get(params.id) as any;
   if (!arg) return NextResponse.json({ error: 'Argument not found' }, { status: 404 });
 
   const id = nanoid();
-  db.prepare('INSERT INTO comments (id, argument_id, author_id, content) VALUES (?, ?, ?, ?)')
+  await db.prepare('INSERT INTO comments (id, argument_id, author_id, content) VALUES (?, ?, ?, ?)')
     .run(id, params.id, user.id, content.trim());
 
   if (modResult.flags.length > 0) {
-    db.prepare('INSERT INTO flagged_content (id, content_type, content_id, author_id, reason, flags, score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    await db.prepare('INSERT INTO flagged_content (id, content_type, content_id, author_id, reason, flags, score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
       .run(nanoid(), 'comment', id, user.id, modResult.flags[0].detail, JSON.stringify(modResult.flags), modResult.score, 'pending');
   }
 
-  db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'commented', 'argument', ?, ?)`)
+  await db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'commented', 'argument', ?, ?)`)
     .run(nanoid(), arg.debate_id, user.id, params.id, JSON.stringify({}));
 
-  const comment = db.prepare(`
+  const comment = await db.prepare(`
     SELECT c.*, u.display_name as author_name, u.avatar_color as author_color
     FROM comments c JOIN users u ON c.author_id = u.id WHERE c.id = ?
   `).get(id);

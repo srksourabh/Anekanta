@@ -3,3 +3,4 @@ node_modules/
 data/
 .env.local
 tsconfig.tsbuildinfo
+gh_2.62.0_linux_amd64/

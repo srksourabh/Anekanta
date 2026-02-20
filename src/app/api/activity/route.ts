@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   const db = await getDb();
   const url = new URL(req.url);
@@ -31,6 +33,6 @@ export async function GET(req: NextRequest) {
     params = [limit];
   }
 
-  const activities = db.prepare(query).all(...params);
+  const activities = await db.prepare(query).all(...params);
   return NextResponse.json(activities);
 }

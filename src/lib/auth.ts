@@ -25,7 +25,7 @@ export async function createUser(username: string, email: string, password: stri
   const colors = ['#a97847', '#0f766e', '#be185d', '#c74707', '#7b4d33', '#14b8a6', '#ec4899', '#ff7a0f'];
   const color = colors[Math.floor(Math.random() * colors.length)];
 
-  db.prepare(`INSERT INTO users (id, username, email, password_hash, display_name, avatar_color, role) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+  await db.prepare(`INSERT INTO users (id, username, email, password_hash, display_name, avatar_color, role) VALUES (?, ?, ?, ?, ?, ?, ?)`)
     .run(id, username.toLowerCase(), email.toLowerCase(), hash, displayName, color, role);
 
   return { id, username: username.toLowerCase(), email: email.toLowerCase(), display_name: displayName, bio: '', avatar_color: color, role, created_at: new Date().toISOString() };
@@ -33,9 +33,9 @@ export async function createUser(username: string, email: string, password: stri
 
 export async function authenticateUser(email: string, password: string): Promise<User | null> {
   const db = await getDb();
-  const row = db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
+  const row = await db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
   if (!row) return null;
-  const stored = db.prepare(`SELECT password_hash FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
+  const stored = await db.prepare(`SELECT password_hash FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
   if (!stored) return null;
   const valid = await bcrypt.compare(password, stored.password_hash);
   if (!valid) return null;
@@ -70,7 +70,7 @@ export async function getCurrentUser(): Promise<User | null> {
     const userId = payload.userId as string;
 
     const db = await getDb();
-    const row = db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE id = ?`).get(userId);
+    const row = await db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE id = ?`).get(userId);
     return row as User | null;
   } catch {
     return null;

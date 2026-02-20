@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function Home() {
   const db = await getDb();
 
-  const featured = db.prepare(`
+  const featured = await db.prepare(`
     SELECT d.*, u.display_name as author_name, u.avatar_color as author_color,
       (SELECT COUNT(*) FROM arguments WHERE debate_id = d.id) as argument_count,
       (SELECT COUNT(*) FROM votes v JOIN arguments a ON v.argument_id = a.id WHERE a.debate_id = d.id) as vote_count
@@ -18,7 +18,7 @@ export default async function Home() {
     ORDER BY d.updated_at DESC LIMIT 6
   `).all();
 
-  const stats = db.prepare(`
+  const stats = await db.prepare(`
     SELECT
       (SELECT COUNT(*) FROM debates) as debates,
       (SELECT COUNT(*) FROM arguments) as arguments,
