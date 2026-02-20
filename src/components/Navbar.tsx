@@ -34,7 +34,7 @@ export function Navbar() {
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="w-10 h-10 relative">
-                <Image src="/logo.svg" alt="Anekanta" width={40} height={40} className="drop-shadow-sm" />
+                <Image src="/logo.png" alt="Anekanta" width={40} height={40} className="drop-shadow-sm" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-heading font-bold text-amber-100 leading-tight tracking-wide">

@@ -33,7 +33,7 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="max-w-3xl">
             <div className="flex items-center gap-4 mb-6">
-              <Image src="/logo.svg" alt="Anekanta" width={64} height={64} className="drop-shadow-md" />
+              <Image src="/logo.png" alt="Anekanta" width={64} height={64} className="drop-shadow-md" />
               <div>
                 <h1 className="text-4xl md:text-5xl font-heading font-bold text-earth-900 leading-tight">
                   Anekanta

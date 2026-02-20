@@ -39,7 +39,7 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="text-center mb-8">
         <Link href="/" className="inline-block mb-4">
-          <Image src="/logo.svg" alt="Anekanta" width={56} height={56} className="mx-auto" />
+          <Image src="/logo.png" alt="Anekanta" width={56} height={56} className="mx-auto" />
         </Link>
         <h1 className="text-2xl font-heading font-bold text-stone-800">{t('auth_welcome_back')}</h1>
         <p className="text-sm text-stone-500 mt-1">{t('auth_login_subtitle')}</p>

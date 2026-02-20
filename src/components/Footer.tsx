@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col items-center md:items-start gap-3">
             <Link href="/" className="flex items-center gap-3">
-              <Image src="/logo.svg" alt="Anekanta" width={36} height={36} />
+              <Image src="/logo.png" alt="Anekanta" width={36} height={36} />
               <span className="text-lg font-heading font-bold text-amber-100">Anekanta</span>
             </Link>
             <p className="text-sm text-teal-300/60 max-w-xs text-center md:text-left">
