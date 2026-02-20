@@ -13,7 +13,7 @@ const config: Config = {
         con: '#dc2626',
       },
       fontFamily: {
-        heading: ['"Yatra One"', '"Tiro Devanagari Hindi"', 'Georgia', 'serif'],
+        heading: ['"Cormorant Garamond"', '"Tiro Bangla"', '"Tiro Devanagari Hindi"', 'Georgia', 'serif'],
         body: ['"Noto Sans"', '"Noto Sans Bengali"', '"Noto Sans Devanagari"', 'system-ui', 'sans-serif'],
       },
     },
