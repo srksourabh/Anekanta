@@ -16,11 +16,13 @@ import { RolesPanel } from '@/components/RolesPanel';
 import { DebateSettingsPanel } from '@/components/DebateSettingsPanel';
 import { StructuredDebateLayout } from '@/components/StructuredDebateLayout';
 import { DebateSummaryPanel } from '@/components/DebateSummaryPanel';
+import { SunburstView } from '@/components/SunburstView';
 import { useLanguage } from '@/components/LanguageProvider';
+import { getPathIds } from '@/lib/treeUtils';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
-type ViewMode = 'dual' | 'tree' | 'activity';
+type ViewMode = 'dual' | 'tree' | 'activity' | 'sunburst';
 
 export default function DebatePage() {
   const params = useParams();
@@ -241,10 +243,13 @@ export default function DebatePage() {
           <button onClick={() => setView('activity')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'activity' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
             {t('debate_activity')}
           </button>
+          <button onClick={() => setView('sunburst')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'sunburst' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
+            {t('view_sunburst')}
+          </button>
         </div>
 
         {/* Sort toggle (for tree views) */}
-        {(view === 'dual' || view === 'tree') && (
+        {(view === 'dual' || view === 'tree' || view === 'sunburst') && (
           <div className="flex gap-1 bg-stone-100 rounded-lg p-1 ml-auto">
             <button onClick={() => setSortBy('votes')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${sortBy === 'votes' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
               Top Votes
@@ -378,6 +383,24 @@ export default function DebatePage() {
               currentUserRole={user?.role}
               sortBy={sortBy}
               onRefresh={loadDebate}
+            />
+          ) : (
+            <p className="text-stone-400">{t('no_thesis_found')}</p>
+          )}
+        </div>
+      ) : view === 'sunburst' ? (
+        <div className="card p-6">
+          {thesis ? (
+            <SunburstView
+              thesis={thesis}
+              onDrillDown={(argId) => {
+                // Switch to dual-column view focused on the clicked node
+                const path = getPathIds(thesis, argId);
+                if (path.length > 0) {
+                  setView('dual');
+                  handleNavigate(path);
+                }
+              }}
             />
           ) : (
             <p className="text-stone-400">{t('no_thesis_found')}</p>

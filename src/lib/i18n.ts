@@ -442,6 +442,13 @@ export const translations = {
     summary_none: 'None yet',
     filter_all: 'All',
     understanding_btn: 'Understanding',
+
+    // Inline expansion + Sunburst
+    view_expand_inline: 'Expand',
+    view_collapse_inline: 'Collapse',
+    view_focus_claim: 'Focus',
+    sunburst_click_hint: 'Click any segment to explore',
+    view_sunburst: 'Sunburst',
   },
 
   bn: {
@@ -856,6 +863,13 @@ export const translations = {
     summary_none: 'এখনও কিছু নেই',
     filter_all: 'সব',
     understanding_btn: 'বোঝাপড়া',
+
+    // Inline expansion + Sunburst
+    view_expand_inline: 'প্রসারিত',
+    view_collapse_inline: 'সংকুচিত',
+    view_focus_claim: 'ফোকাস',
+    sunburst_click_hint: 'যেকোনো অংশে ক্লিক করুন',
+    view_sunburst: 'সানবার্স্ট',
   },
 } as const;
 

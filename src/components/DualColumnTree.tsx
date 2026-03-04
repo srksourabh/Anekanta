@@ -131,9 +131,17 @@ export function DualColumnTree({
                   onVote={onVote}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onAddArgument={onAddArgument}
+                  onRefresh={onRefresh}
                   isLoggedIn={isLoggedIn}
                   canModify={canModify(arg)}
                   impactScore={impactScores?.[arg.id]}
+                  impactScores={impactScores}
+                  currentUserId={currentUserId}
+                  currentUserRole={currentUserRole}
+                  depth={0}
+                  maxInlineDepth={3}
+                  sortBy={sortBy}
                 />
               ))}
               {pros.length === 0 && (
@@ -165,9 +173,17 @@ export function DualColumnTree({
                   onVote={onVote}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
+                  onAddArgument={onAddArgument}
+                  onRefresh={onRefresh}
                   isLoggedIn={isLoggedIn}
                   canModify={canModify(arg)}
                   impactScore={impactScores?.[arg.id]}
+                  impactScores={impactScores}
+                  currentUserId={currentUserId}
+                  currentUserRole={currentUserRole}
+                  depth={0}
+                  maxInlineDepth={3}
+                  sortBy={sortBy}
                 />
               ))}
               {cons.length === 0 && (
