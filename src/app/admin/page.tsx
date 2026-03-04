@@ -90,7 +90,7 @@ export default function AdminPage() {
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <span className="text-xs font-medium uppercase bg-earth-200 text-earth-700 px-2 py-0.5 rounded">{item.content_type}</span>
-                  <span className="ml-2 text-xs text-earth-500">{t('admin_score')} {item.score.toFixed(2)}</span>
+                  <span className="ml-2 text-xs text-earth-500">{t('admin_score')} {(item.score ?? 0).toFixed(2)}</span>
                   <span className={`ml-2 text-xs px-2 py-0.5 rounded ${item.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : item.status === 'actioned' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>{item.status}</span>
                 </div>
                 <span className="text-xs text-earth-400">{new Date(item.created_at).toLocaleDateString()}</span>
