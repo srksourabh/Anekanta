@@ -27,8 +27,8 @@ export async function GET(req: Request) {
 
   const members = await db.prepare(`
     SELECT u.id, u.username, u.display_name, u.avatar_color, u.created_at,
-      (SELECT COUNT(*) FROM debates WHERE created_by = u.id) as debate_count,
-      (SELECT COUNT(*) FROM arguments WHERE user_id = u.id) as argument_count,
+      (SELECT COUNT(*) FROM debates WHERE author_id = u.id) as debate_count,
+      (SELECT COUNT(*) FROM arguments WHERE author_id = u.id) as argument_count,
       (SELECT COUNT(*) FROM votes WHERE user_id = u.id) as vote_count,
       (SELECT COUNT(*) FROM comments WHERE user_id = u.id) as comment_count
     FROM users u
@@ -40,8 +40,8 @@ export async function GET(req: Request) {
   // Leaderboard: top 10 by total contributions
   const leaderboard = await db.prepare(`
     SELECT u.id, u.username, u.display_name, u.avatar_color,
-      (SELECT COUNT(*) FROM debates WHERE created_by = u.id) as debate_count,
-      (SELECT COUNT(*) FROM arguments WHERE user_id = u.id) as argument_count,
+      (SELECT COUNT(*) FROM debates WHERE author_id = u.id) as debate_count,
+      (SELECT COUNT(*) FROM arguments WHERE author_id = u.id) as argument_count,
       (SELECT COUNT(*) FROM votes WHERE user_id = u.id) as vote_count,
       (SELECT COUNT(*) FROM comments WHERE user_id = u.id) as comment_count
     FROM users u

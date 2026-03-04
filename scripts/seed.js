@@ -1,23 +1,19 @@
 (async () => {
-  const initSqlJs = require('sql.js');
+  const { createClient } = require('@libsql/client');
   const bcrypt = require('bcryptjs');
   const { randomBytes } = require('crypto');
-  const path = require('path');
-  const fs = require('fs');
 
-  const DB_PATH = process.env.DATABASE_PATH || '/tmp/anekanta.db';
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const url = process.env.TURSO_DATABASE_URL;
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  if (!url) {
+    console.error('TURSO_DATABASE_URL environment variable is required');
+    process.exit(1);
+  }
 
-  // Remove existing db for clean seed
-  if (fs.existsSync(DB_PATH)) fs.unlinkSync(DB_PATH);
-
-  // Initialize sql.js
-  const SQL = await initSqlJs();
-  const sqlDb = new SQL.Database();
+  const client = createClient({ url, authToken: authToken || undefined });
 
   // Initialize tables (same as db.ts)
-  sqlDb.exec(`
+  await client.executeMultiple(`
     CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, display_name TEXT NOT NULL, bio TEXT DEFAULT '', avatar_color TEXT DEFAULT '#a97847', role TEXT DEFAULT 'user', created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')));
     CREATE TABLE IF NOT EXISTS debates (id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT DEFAULT '', thesis TEXT NOT NULL, author_id TEXT NOT NULL REFERENCES users(id), category TEXT NOT NULL DEFAULT 'general', status TEXT DEFAULT 'active', is_anonymous INTEGER DEFAULT 0, tagline TEXT DEFAULT '', conclusion TEXT DEFAULT '', created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')));
     CREATE TABLE IF NOT EXISTS arguments (id TEXT PRIMARY KEY, debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE, parent_id TEXT REFERENCES arguments(id) ON DELETE CASCADE, author_id TEXT NOT NULL REFERENCES users(id), content TEXT NOT NULL, type TEXT NOT NULL, depth INTEGER DEFAULT 0, vote_score INTEGER DEFAULT 0, is_anonymous INTEGER DEFAULT 0, created_at TEXT DEFAULT (datetime('now')), updated_at TEXT DEFAULT (datetime('now')));
@@ -42,7 +38,7 @@
   ];
 
   for (const u of users) {
-    sqlDb.run('INSERT OR IGNORE INTO users (id, username, email, password_hash, display_name, avatar_color, role) VALUES (?, ?, ?, ?, ?, ?, ?)', [u.id, u.username, u.email, hash, u.display_name, u.avatar_color, u.role]);
+    await client.execute({ sql: 'INSERT OR IGNORE INTO users (id, username, email, password_hash, display_name, avatar_color, role) VALUES (?, ?, ?, ?, ?, ?, ?)', args: [u.id, u.username, u.email, hash, u.display_name, u.avatar_color, u.role] });
   }
 
   // Debates with arguments
@@ -128,24 +124,24 @@
     const debateId = nanoid();
     const thesisId = nanoid();
 
-    sqlDb.run('INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [debateId, d.title, d.description, d.thesis, author.id, d.category, d.tagline, d.conclusion]);
-    sqlDb.run('INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [thesisId, debateId, null, author.id, d.thesis, 'thesis', 0, 0]);
-    sqlDb.run('INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', [nanoid(), debateId, author.id, 'created', 'debate', debateId, JSON.stringify({ title: d.title })]);
+    await client.execute({ sql: 'INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', args: [debateId, d.title, d.description, d.thesis, author.id, d.category, d.tagline, d.conclusion] });
+    await client.execute({ sql: 'INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', args: [thesisId, debateId, null, author.id, d.thesis, 'thesis', 0, 0] });
+    await client.execute({ sql: 'INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', args: [nanoid(), debateId, author.id, 'created', 'debate', debateId, JSON.stringify({ title: d.title })] });
 
     // Add pro arguments
     for (let j = 0; j < d.pros.length; j++) {
       const argAuthor = users[(i + j + 1) % users.length];
       const argId = nanoid();
       const score = Math.floor(Math.random() * 12) + 1;
-      sqlDb.run('INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [argId, debateId, thesisId, argAuthor.id, d.pros[j], 'pro', 1, score]);
-      sqlDb.run('INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', [nanoid(), debateId, argAuthor.id, 'added_argument', 'argument', argId, JSON.stringify({ type: 'pro' })]);
+      await client.execute({ sql: 'INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', args: [argId, debateId, thesisId, argAuthor.id, d.pros[j], 'pro', 1, score] });
+      await client.execute({ sql: 'INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', args: [nanoid(), debateId, argAuthor.id, 'added_argument', 'argument', argId, JSON.stringify({ type: 'pro' })] });
       argIds.push({ id: argId, type: 'pro' });
 
       // Add some votes
       for (let k = 0; k < 3; k++) {
         const voter = users[(i + j + k + 2) % users.length];
         try {
-          sqlDb.run('INSERT INTO votes (id, argument_id, user_id, value) VALUES (?, ?, ?, ?)', [nanoid(), argId, voter.id, Math.floor(Math.random() * 4) + 1]);
+          await client.execute({ sql: 'INSERT INTO votes (id, argument_id, user_id, value) VALUES (?, ?, ?, ?)', args: [nanoid(), argId, voter.id, Math.floor(Math.random() * 4) + 1] });
         } catch {}
       }
     }
@@ -155,30 +151,26 @@
       const argAuthor = users[(i + j + 2) % users.length];
       const argId = nanoid();
       const score = Math.floor(Math.random() * 10) + 1;
-      sqlDb.run('INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [argId, debateId, thesisId, argAuthor.id, d.cons[j], 'con', 1, score]);
-      sqlDb.run('INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', [nanoid(), debateId, argAuthor.id, 'added_argument', 'argument', argId, JSON.stringify({ type: 'con' })]);
+      await client.execute({ sql: 'INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, vote_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', args: [argId, debateId, thesisId, argAuthor.id, d.cons[j], 'con', 1, score] });
+      await client.execute({ sql: 'INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, ?, ?, ?, ?)', args: [nanoid(), debateId, argAuthor.id, 'added_argument', 'argument', argId, JSON.stringify({ type: 'con' })] });
       argIds.push({ id: argId, type: 'con' });
 
       for (let k = 0; k < 2; k++) {
         const voter = users[(i + j + k + 3) % users.length];
         try {
-          sqlDb.run('INSERT INTO votes (id, argument_id, user_id, value) VALUES (?, ?, ?, ?)', [nanoid(), argId, voter.id, Math.floor(Math.random() * 4) + 1]);
+          await client.execute({ sql: 'INSERT INTO votes (id, argument_id, user_id, value) VALUES (?, ?, ?, ?)', args: [nanoid(), argId, voter.id, Math.floor(Math.random() * 4) + 1] });
         } catch {}
       }
     }
   }
 
   // Add demo flagged content entries
-  const arjuna = users[0];
   const draupadi = users[1];
+  const arjuna = users[0];
   if (argIds.length >= 2) {
-    sqlDb.run('INSERT INTO flagged_content (id, content_type, content_id, reason, description, flagged_by) VALUES (?, ?, ?, ?, ?, ?)', [nanoid(), 'argument', argIds[0].id, 'toxic', 'Contains disrespectful language targeting a protected group.', draupadi.id]);
-    sqlDb.run('INSERT INTO flagged_content (id, content_type, content_id, reason, description, flagged_by) VALUES (?, ?, ?, ?, ?, ?)', [nanoid(), 'argument', argIds[1].id, 'spam', 'Commercial promotion unrelated to debate topic.', arjuna.id]);
+    await client.execute({ sql: 'INSERT INTO flagged_content (id, content_type, content_id, reason, description, flagged_by) VALUES (?, ?, ?, ?, ?, ?)', args: [nanoid(), 'argument', argIds[0].id, 'toxic', 'Contains disrespectful language targeting a protected group.', draupadi.id] });
+    await client.execute({ sql: 'INSERT INTO flagged_content (id, content_type, content_id, reason, description, flagged_by) VALUES (?, ?, ?, ?, ?, ?)', args: [nanoid(), 'argument', argIds[1].id, 'spam', 'Commercial promotion unrelated to debate topic.', arjuna.id] });
   }
-
-  // Export database and save to file
-  const data = sqlDb.export();
-  fs.writeFileSync(DB_PATH, Buffer.from(data));
 
   console.log('Seed complete: 5 users, 4 debates with arguments and votes.');
   console.log('Arjuna has admin role; other users are regular users.');
