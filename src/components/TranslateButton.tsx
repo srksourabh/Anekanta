@@ -8,19 +8,13 @@ interface TranslateButtonProps {
   className?: string;
 }
 
-const LANG_CODES: Record<string, string> = {
-  en: 'en',
-  bn: 'bn',
-  hi: 'hi',
-};
-
 export function TranslateButton({ text, className = '' }: TranslateButtonProps) {
   const { locale } = useLanguage();
   const [translated, setTranslated] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  if (locale === 'en') return null; // No need to translate if UI is in English (most content is English)
+  if (!text || text.length < 10) return null;
 
   const handleTranslate = async () => {
     if (translated) {
@@ -30,13 +24,15 @@ export function TranslateButton({ text, className = '' }: TranslateButtonProps) 
     setLoading(true);
     setError(false);
     try {
-      const target = LANG_CODES[locale] || 'en';
-      const res = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=en|${target}`
-      );
+      const target = locale === 'en' ? 'bn' : locale;
+      const res = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, target }),
+      });
       const data = await res.json();
-      if (data.responseData?.translatedText) {
-        setTranslated(data.responseData.translatedText);
+      if (data.translated) {
+        setTranslated(data.translated);
       } else {
         setError(true);
       }

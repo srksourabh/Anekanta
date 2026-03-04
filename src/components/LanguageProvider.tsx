@@ -21,7 +21,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('anekanta-lang') as Locale;
-    if (saved && ['en', 'bn', 'hi'].includes(saved)) {
+    if (saved && ['en', 'bn'].includes(saved)) {
       setLocaleState(saved);
     }
   }, []);
