@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { VoteBar } from './VoteBar';
+import { VoteSegmentBar } from './VoteSegmentBar';
 import { PerspectiveTag } from './PerspectiveTag';
 import { ImpactIndicator } from './ImpactIndicator';
 import { InlineProConColumns } from './InlineProConColumns';
@@ -69,7 +69,12 @@ export function ClaimCard({
 
   return (
     <div>
-      <div className={`card ${borderClass} p-4 hover:shadow-md transition-shadow group ${isHighlighted ? 'ring-1 ring-amber-200 bg-amber-50/30' : ''}`}>
+      <div
+        className={`card ${borderClass} p-4 hover:shadow-md transition-shadow group ${isHighlighted ? 'ring-1 ring-amber-200 bg-amber-50/30' : ''}`}
+        onClick={() => onDrillDown(arg.id)}
+        role="button"
+        tabIndex={0}
+      >
         {/* Pinned indicator */}
         {isPinned && (
           <div className="flex items-center gap-1 text-[10px] text-saffron-600 font-medium mb-1.5">
@@ -77,28 +82,27 @@ export function ClaimCard({
             {t('pinned')}
           </div>
         )}
-        {/* Header: author + vote + menu */}
-        <div className="flex items-center gap-2 mb-2">
+
+        {/* Header row: author + vote segment bar + actions */}
+        <div className="flex items-center gap-2 mb-2.5">
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
             style={{ backgroundColor: arg.author_color || '#a97847' }}
           >
             {(authorLabel || '?')[0].toUpperCase()}
           </div>
-          <span className="text-xs text-stone-500">
-            <span className="font-medium" style={{ color: arg.author_color }}>{authorLabel}</span>
-            <span className="mx-1.5 text-stone-300">&middot;</span>
-            {formatDistanceToNow(new Date(arg.created_at), { addSuffix: true })}
-          </span>
+          <span className="text-xs font-medium" style={{ color: arg.author_color }}>{authorLabel}</span>
           {perspective && <PerspectiveTag perspective={perspective} size="sm" />}
 
           <div className="ml-auto flex items-center gap-2">
-            <VoteBar
+            <VoteSegmentBar
               argId={arg.id}
               score={arg.vote_score}
               userVote={arg.user_vote ?? null}
+              type={arg.type}
               onVote={onVote}
               isLoggedIn={isLoggedIn}
+              compact
             />
             {canModify && (
               <div className="relative">
@@ -112,14 +116,14 @@ export function ClaimCard({
                 </button>
                 {showMenu && (
                   <>
-                    <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                    <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setShowMenu(false); }} />
                     <div className="absolute right-0 mt-1 w-28 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20">
                       <button
-                        onClick={() => { setEditMode(true); setShowMenu(false); }}
+                        onClick={(e) => { e.stopPropagation(); setEditMode(true); setShowMenu(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50"
                       >Edit</button>
                       <button
-                        onClick={() => { handleDelete(); setShowMenu(false); }}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(); setShowMenu(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
                       >Delete</button>
                     </div>
@@ -127,12 +131,26 @@ export function ClaimCard({
                 )}
               </div>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); }}
+              className="p-1 text-stone-400 hover:text-stone-600"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </button>
+            {/* Blue dot indicator when has children */}
+            {hasChildren && (
+              <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                arg.type === 'pro' ? 'bg-blue-500' : 'bg-blue-500'
+              }`} />
+            )}
           </div>
         </div>
 
         {/* Content */}
         {editMode ? (
-          <div className="space-y-2 mb-2">
+          <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
             <textarea
               value={editContent}
               onChange={e => setEditContent(e.target.value)}
@@ -163,60 +181,29 @@ export function ClaimCard({
           </div>
         )}
 
-        {/* Footer: impact + expand/focus + comments */}
-        <div className="flex items-center gap-3 mt-3 text-xs text-stone-500">
-          {impactScore !== undefined && impactScore > 0 && (
-            <ImpactIndicator score={impactScore} size="sm" />
-          )}
+        {/* Footer: impact + expand/focus indicators */}
+        {(impactScore || hasChildren) && (
+          <div className="flex items-center gap-3 mt-3 text-xs text-stone-500">
+            {impactScore !== undefined && impactScore > 0 && (
+              <ImpactIndicator score={impactScore} size="sm" />
+            )}
 
-          {hasChildren && (
-            <div className="flex items-center gap-2">
-              {/* Inline expand/collapse toggle */}
-              {canExpandInline && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); setInlineExpanded(!inlineExpanded); }}
-                  className="flex items-center gap-1.5 hover:text-saffron-600 transition-colors"
-                  title={inlineExpanded ? t('view_collapse_inline') : t('view_expand_inline')}
-                >
-                  <svg className={`w-3.5 h-3.5 transition-transform ${inlineExpanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  {proCount > 0 && <span className="text-green-600 font-medium">{proCount} {t('claim_pro_count')}</span>}
-                  {proCount > 0 && conCount > 0 && <span className="text-stone-300">/</span>}
-                  {conCount > 0 && <span className="text-red-600 font-medium">{conCount} {t('claim_con_count')}</span>}
-                </button>
-              )}
-
-              {/* Focus/drill-down button */}
+            {hasChildren && canExpandInline && (
               <button
-                onClick={() => onDrillDown(arg.id)}
-                className="flex items-center gap-1 text-stone-400 hover:text-saffron-600 transition-colors"
-                title={t('view_focus_claim')}
+                onClick={(e) => { e.stopPropagation(); setInlineExpanded(!inlineExpanded); }}
+                className="flex items-center gap-1.5 hover:text-saffron-600 transition-colors"
+                title={inlineExpanded ? t('view_collapse_inline') : t('view_expand_inline')}
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg className={`w-3.5 h-3.5 transition-transform ${inlineExpanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                {/* When too deep for inline expand, show child counts on focus button */}
-                {!canExpandInline && (
-                  <>
-                    {proCount > 0 && <span className="text-green-600 font-medium">{proCount} {t('claim_pro_count')}</span>}
-                    {proCount > 0 && conCount > 0 && <span className="text-stone-300">/</span>}
-                    {conCount > 0 && <span className="text-red-600 font-medium">{conCount} {t('claim_con_count')}</span>}
-                  </>
-                )}
+                {proCount > 0 && <span className="text-green-600 font-medium">{proCount} {t('claim_pro_count')}</span>}
+                {proCount > 0 && conCount > 0 && <span className="text-stone-300">/</span>}
+                {conCount > 0 && <span className="text-red-600 font-medium">{conCount} {t('claim_con_count')}</span>}
               </button>
-            </div>
-          )}
-
-          {(arg.comment_count ?? 0) > 0 && (
-            <span className="flex items-center gap-1">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              {arg.comment_count}
-            </span>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Inline expanded sub-columns */}
