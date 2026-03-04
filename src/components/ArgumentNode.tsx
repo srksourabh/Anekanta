@@ -14,9 +14,13 @@ interface ArgumentNodeProps {
   onVote: (argId: string, value: number) => Promise<void>;
   isLoggedIn: boolean;
   depth?: number;
+  currentUserId?: string | null;
+  currentUserRole?: string | null;
+  sortBy?: 'votes' | 'recent';
+  onRefresh?: () => Promise<void>;
 }
 
-export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn, depth = 0 }: ArgumentNodeProps) {
+export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn, depth = 0, currentUserId, currentUserRole, sortBy = 'votes', onRefresh }: ArgumentNodeProps) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(depth < 2);
   const [showAddPro, setShowAddPro] = useState(false);
@@ -24,9 +28,36 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
   const [showComments, setShowComments] = useState(false);
   const [newContent, setNewContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editContent, setEditContent] = useState(arg.content);
+  const [currentContent, setCurrentContent] = useState(arg.content);
 
-  const proChildren = (arg.children || []).filter((c: any) => c.type === 'pro');
-  const conChildren = (arg.children || []).filter((c: any) => c.type === 'con');
+  const canModify = currentUserId && (currentUserId === arg.author_id || currentUserRole === 'admin');
+
+  const handleEdit = async () => {
+    if (!editContent.trim() || editContent.length > 500) return;
+    const res = await fetch(`/api/arguments/${arg.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: editContent.trim() }),
+    });
+    if (res.ok) {
+      setCurrentContent(editContent.trim());
+      setEditMode(false);
+      if (onRefresh) await onRefresh();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Delete this argument?')) return;
+    const res = await fetch(`/api/arguments/${arg.id}`, { method: 'DELETE' });
+    if (res.ok && onRefresh) await onRefresh();
+  };
+
+  const sortFn = (a: any, b: any) => sortBy === 'votes' ? (b.vote_score - a.vote_score) : (new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const proChildren = (arg.children || []).filter((c: any) => c.type === 'pro').sort(sortFn);
+  const conChildren = (arg.children || []).filter((c: any) => c.type === 'con').sort(sortFn);
   const hasChildren = proChildren.length > 0 || conChildren.length > 0;
 
   const borderClass = arg.type === 'pro' ? 'tree-line-pro' : arg.type === 'con' ? 'tree-line-con' : 'tree-line-thesis';
@@ -67,11 +98,38 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
               <span className="text-xs text-stone-400">
                 {formatDistanceToNow(new Date(arg.created_at), { addSuffix: true })}
               </span>
+              {canModify && arg.type !== 'thesis' && (
+                <div className="relative ml-auto">
+                  <button onClick={() => setShowMenu(!showMenu)} className="p-0.5 text-stone-400 hover:text-stone-600">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                  </button>
+                  {showMenu && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                      <div className="absolute right-0 mt-1 w-28 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20">
+                        <button onClick={() => { setEditMode(true); setShowMenu(false); }} className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50">Edit</button>
+                        <button onClick={() => { handleDelete(); setShowMenu(false); }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50">Delete</button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="text-stone-800 text-[15px] leading-relaxed">
-              {arg.content}
-              <TranslateButton text={arg.content} />
-            </p>
+            {editMode ? (
+              <div className="space-y-2">
+                <textarea value={editContent} onChange={e => setEditContent(e.target.value)} className="input-field text-sm" rows={3} maxLength={500} />
+                <div className="flex items-center gap-2">
+                  <button onClick={handleEdit} className="btn-primary text-xs px-3 py-1">Save</button>
+                  <button onClick={() => { setEditMode(false); setEditContent(currentContent); }} className="text-xs text-stone-500">Cancel</button>
+                  <span className="text-[10px] text-stone-400 ml-auto">{editContent.length}/500</span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-stone-800 text-[15px] leading-relaxed">
+                {currentContent}
+                <TranslateButton text={currentContent} />
+              </p>
+            )}
             <div className="flex items-center gap-4 mt-3">
               <VoteBar
                 argId={arg.id}
@@ -133,10 +191,10 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
       {expanded && hasChildren && (
         <div className="mt-1">
           {proChildren.map((child: any) => (
-            <ArgumentNode key={child.id} arg={child} debateId={debateId} onAddArgument={onAddArgument} onVote={onVote} isLoggedIn={isLoggedIn} depth={depth + 1} />
+            <ArgumentNode key={child.id} arg={child} debateId={debateId} onAddArgument={onAddArgument} onVote={onVote} isLoggedIn={isLoggedIn} depth={depth + 1} currentUserId={currentUserId} currentUserRole={currentUserRole} sortBy={sortBy} onRefresh={onRefresh} />
           ))}
           {conChildren.map((child: any) => (
-            <ArgumentNode key={child.id} arg={child} debateId={debateId} onAddArgument={onAddArgument} onVote={onVote} isLoggedIn={isLoggedIn} depth={depth + 1} />
+            <ArgumentNode key={child.id} arg={child} debateId={debateId} onAddArgument={onAddArgument} onVote={onVote} isLoggedIn={isLoggedIn} depth={depth + 1} currentUserId={currentUserId} currentUserRole={currentUserRole} sortBy={sortBy} onRefresh={onRefresh} />
           ))}
         </div>
       )}

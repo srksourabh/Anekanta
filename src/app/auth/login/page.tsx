@@ -57,9 +57,16 @@ export default function LoginPage() {
         <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
           {loading ? t('auth_signing_in') : t('nav_login')}
         </button>
-        <p className="text-center text-sm text-stone-500">
-          {t('auth_new_here')} <Link href="/auth/register" className="text-saffron-600 hover:underline">{t('auth_create_account')}</Link>
-        </p>
+        <div className="text-center text-sm space-y-2">
+          <p className="text-stone-500">
+            <Link href="/auth/reset-password" className="text-saffron-600 hover:underline">
+              Forgot password?
+            </Link>
+          </p>
+          <p className="text-stone-500">
+            {t('auth_new_here')} <Link href="/auth/register" className="text-saffron-600 hover:underline">{t('auth_create_account')}</Link>
+          </p>
+        </div>
       </form>
     </div>
   );

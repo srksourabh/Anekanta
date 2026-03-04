@@ -238,6 +238,82 @@ async function initializeSchema(database: CompatDb) {
     )
   `);
 
+  // New tables for enhanced features
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS claim_edits (
+      id TEXT PRIMARY KEY,
+      argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      author_id TEXT NOT NULL REFERENCES users(id),
+      old_content TEXT NOT NULL,
+      new_content TEXT NOT NULL,
+      edit_type TEXT DEFAULT 'edit',
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS claim_sources (
+      id TEXT PRIMARY KEY,
+      argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      url TEXT NOT NULL,
+      quote TEXT DEFAULT '',
+      added_by TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token TEXT UNIQUE NOT NULL,
+      expires_at TEXT NOT NULL,
+      used INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS teams (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      description TEXT DEFAULT '',
+      stance TEXT NOT NULL,
+      created_by TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS team_members (
+      team_id TEXT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT DEFAULT 'member',
+      joined_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (team_id, user_id)
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS last_seen (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      seen_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, argument_id)
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS bookmarks (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(user_id, argument_id)
+    )
+  `);
+
   // Indexes - each as separate statement for Turso compatibility
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_parent ON arguments(parent_id)`);
@@ -247,4 +323,11 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_debates_category ON debates(category)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_flagged_status ON flagged_content(status)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_reactions_argument ON reactions(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_claim_edits_argument ON claim_edits(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_claim_sources_argument ON claim_sources(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(token)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_teams_debate ON teams(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id)`);
 }

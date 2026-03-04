@@ -58,3 +58,107 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   return NextResponse.json({ debate, thesis, arguments: args });
 }
+
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const db = await getDb();
+  const debateId = params.id;
+  const body = await req.json();
+
+  const debate = await db.prepare('SELECT * FROM debates WHERE id = ?').get(debateId) as any;
+  if (!debate) return NextResponse.json({ error: 'Debate not found' }, { status: 404 });
+
+  // Check author or admin
+  if (debate.author_id !== user.id && user.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { title, description, thesis, category, tagline, conclusion, status } = body;
+
+  // Update debate
+  const updates: string[] = [];
+  const params_list: any[] = [];
+
+  if (title !== undefined) {
+    updates.push('title = ?');
+    params_list.push(title);
+  }
+  if (description !== undefined) {
+    updates.push('description = ?');
+    params_list.push(description);
+  }
+  if (category !== undefined) {
+    updates.push('category = ?');
+    params_list.push(category);
+  }
+  if (tagline !== undefined) {
+    updates.push('tagline = ?');
+    params_list.push(tagline);
+  }
+  if (conclusion !== undefined) {
+    updates.push('conclusion = ?');
+    params_list.push(conclusion);
+  }
+  if (status !== undefined) {
+    updates.push('status = ?');
+    params_list.push(status);
+  }
+
+  // If thesis content changed, update the thesis argument
+  if (thesis !== undefined) {
+    const thesisArg = await db.prepare('SELECT * FROM arguments WHERE debate_id = ? AND type = ? AND parent_id IS NULL')
+      .get(debateId, 'thesis') as any;
+    if (thesisArg && thesisArg.content !== thesis) {
+      await db.prepare('UPDATE arguments SET content = ?, updated_at = datetime(\'now\') WHERE id = ?')
+        .run(thesis, thesisArg.id);
+    }
+  }
+
+  if (updates.length > 0) {
+    updates.push('updated_at = datetime(\'now\')');
+    params_list.push(debateId);
+    const sql = `UPDATE debates SET ${updates.join(', ')} WHERE id = ?`;
+    await db.prepare(sql).run(...params_list);
+  }
+
+  const updated = await db.prepare('SELECT * FROM debates WHERE id = ?').get(debateId);
+  return NextResponse.json(updated);
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const db = await getDb();
+  const debateId = params.id;
+
+  const debate = await db.prepare('SELECT * FROM debates WHERE id = ?').get(debateId) as any;
+  if (!debate) return NextResponse.json({ error: 'Debate not found' }, { status: 404 });
+
+  // Check author or admin
+  if (debate.author_id !== user.id && user.role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  // Cascade delete: votes, comments, activity, arguments, then debate
+  const allArguments = await db.prepare('SELECT id FROM arguments WHERE debate_id = ?').all(debateId) as any[];
+
+  for (const arg of allArguments) {
+    await db.prepare('DELETE FROM votes WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM comments WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM reactions WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM claim_edits WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM claim_sources WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM bookmarks WHERE argument_id = ?').run(arg.id);
+    await db.prepare('DELETE FROM last_seen WHERE argument_id = ?').run(arg.id);
+  }
+
+  await db.prepare('DELETE FROM arguments WHERE debate_id = ?').run(debateId);
+  await db.prepare('DELETE FROM activity WHERE debate_id = ?').run(debateId);
+  await db.prepare('DELETE FROM teams WHERE debate_id = ?').run(debateId);
+  await db.prepare('DELETE FROM debates WHERE id = ?').run(debateId);
+
+  return NextResponse.json({ success: true });
+}
