@@ -447,6 +447,18 @@ async function initializeSchema(database: CompatDb) {
     )
   `);
 
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS argument_summaries (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      argument_id TEXT REFERENCES arguments(id) ON DELETE CASCADE,
+      summary_type TEXT NOT NULL CHECK(summary_type IN ('key_takeaway', 'group_label', 'debate_summary')),
+      content TEXT NOT NULL,
+      author_id TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
   // Indexes - each as separate statement for Turso compatibility
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_parent ON arguments(parent_id)`);
@@ -476,4 +488,6 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_editorial_notes_arg ON editorial_notes(argument_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_tags_debate ON debate_tags(debate_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_tags_tag ON debate_tags(tag)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_argument_summaries_debate ON argument_summaries(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_argument_summaries_argument ON argument_summaries(argument_id)`);
 }

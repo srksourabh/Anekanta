@@ -421,6 +421,27 @@ export const translations = {
     // Tags
     tags_label: 'Tags',
     tags_add: 'Add tags to this debate',
+
+    // Impact & Summary (Phase 4)
+    impact_score: 'Impact Score',
+    impact_vote_weight: 'Vote Weight',
+    impact_response_depth: 'Response Depth',
+    impact_engagement: 'Engagement',
+    impact_descendants: 'Sub-arguments',
+    summary_title: 'Debate Understanding',
+    summary_arguments: 'Arguments',
+    summary_votes: 'Votes',
+    summary_participants: 'Participants',
+    summary_balance: 'Pro/Con Balance',
+    summary_top_pro: 'Top Supporting Arguments',
+    summary_top_con: 'Top Opposing Arguments',
+    summary_perspectives: 'Perspective Breakdown',
+    summary_takeaways: 'Key Takeaways',
+    summary_avg_depth: 'Average Depth',
+    summary_no_data: 'No data available yet',
+    summary_none: 'None yet',
+    filter_all: 'All',
+    understanding_btn: 'Understanding',
   },
 
   bn: {
@@ -814,6 +835,27 @@ export const translations = {
     // Tags
     tags_label: 'ট্যাগ',
     tags_add: 'এই বিতর্কে ট্যাগ যোগ করুন',
+
+    // Impact & Summary (Phase 4)
+    impact_score: 'প্রভাব স্কোর',
+    impact_vote_weight: 'ভোটের ওজন',
+    impact_response_depth: 'প্রতিক্রিয়ার গভীরতা',
+    impact_engagement: 'সম্পৃক্ততা',
+    impact_descendants: 'উপ-যুক্তি',
+    summary_title: 'বিতর্ক বোঝাপড়া',
+    summary_arguments: 'যুক্তি',
+    summary_votes: 'ভোট',
+    summary_participants: 'অংশগ্রহণকারী',
+    summary_balance: 'পক্ষ/বিপক্ষ ভারসাম্য',
+    summary_top_pro: 'শীর্ষ সমর্থনমূলক যুক্তি',
+    summary_top_con: 'শীর্ষ বিরোধী যুক্তি',
+    summary_perspectives: 'দৃষ্টিভঙ্গি বিশ্লেষণ',
+    summary_takeaways: 'মূল শিক্ষা',
+    summary_avg_depth: 'গড় গভীরতা',
+    summary_no_data: 'এখনও কোনো তথ্য নেই',
+    summary_none: 'এখনও কিছু নেই',
+    filter_all: 'সব',
+    understanding_btn: 'বোঝাপড়া',
   },
 } as const;
 

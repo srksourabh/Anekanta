@@ -21,12 +21,13 @@ interface DualColumnTreeProps {
   currentUserId?: string | null;
   currentUserRole?: string | null;
   sortBy: 'votes' | 'recent';
+  impactScores?: Record<string, number>;
 }
 
 export function DualColumnTree({
   thesis, debateId, currentPath, onNavigate,
   onAddArgument, onVote, onRefresh, onOpenPanel,
-  isLoggedIn, currentUserId, currentUserRole, sortBy
+  isLoggedIn, currentUserId, currentUserRole, sortBy, impactScores
 }: DualColumnTreeProps) {
   const { t } = useLanguage();
 
@@ -132,6 +133,7 @@ export function DualColumnTree({
                   onDelete={handleDelete}
                   isLoggedIn={isLoggedIn}
                   canModify={canModify(arg)}
+                  impactScore={impactScores?.[arg.id]}
                 />
               ))}
               {pros.length === 0 && (
@@ -165,6 +167,7 @@ export function DualColumnTree({
                   onDelete={handleDelete}
                   isLoggedIn={isLoggedIn}
                   canModify={canModify(arg)}
+                  impactScore={impactScores?.[arg.id]}
                 />
               ))}
               {cons.length === 0 && (

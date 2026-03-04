@@ -15,6 +15,7 @@ import { ClaimSidePanel } from '@/components/ClaimSidePanel';
 import { RolesPanel } from '@/components/RolesPanel';
 import { DebateSettingsPanel } from '@/components/DebateSettingsPanel';
 import { StructuredDebateLayout } from '@/components/StructuredDebateLayout';
+import { DebateSummaryPanel } from '@/components/DebateSummaryPanel';
 import { useLanguage } from '@/components/LanguageProvider';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -48,6 +49,8 @@ export default function DebatePage() {
   const [editFields, setEditFields] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'votes' | 'recent'>('votes');
   const [tags, setTags] = useState<{ id: string; tag: string }[]>([]);
+  const [showSummary, setShowSummary] = useState(false);
+  const [impactScores, setImpactScores] = useState<Record<string, number>>({});
 
   // URL-as-state: current path through the argument tree
   const [currentPath, setCurrentPath] = useState<string[]>([]);
@@ -90,6 +93,13 @@ export default function DebatePage() {
     loadDebate();
     fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(setUser).catch(() => {});
     fetch(`/api/debates/${debateId}/tags`).then(r => r.ok ? r.json() : { tags: [] }).then(d => setTags(d.tags || [])).catch(() => {});
+    fetch(`/api/debates/${debateId}/impact`).then(r => r.ok ? r.json() : null).then(d => {
+      if (d?.impacts) {
+        const map: Record<string, number> = {};
+        for (const i of d.impacts) map[i.id] = i.score;
+        setImpactScores(map);
+      }
+    }).catch(() => {});
   }, [loadDebate]);
 
   useEffect(() => {
@@ -264,6 +274,9 @@ export default function DebatePage() {
               {t('guided_voting_title')}
             </button>
           )}
+          <button onClick={() => setShowSummary(true)} className="px-3 py-1.5 rounded-lg text-sm bg-teal-100 text-teal-700 hover:bg-teal-200 transition-colors">
+            {t('understanding_btn')}
+          </button>
           {user && debate && (debate.author_id === user.id || user.role === 'admin') && debate.requires_approval === 1 && (
             <button onClick={() => setShowPendingClaims(true)} className="px-3 py-1.5 rounded-lg text-sm bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors">
               {t('suggestions_pending')}
@@ -341,6 +354,7 @@ export default function DebatePage() {
               currentUserId={user?.id}
               currentUserRole={user?.role}
               sortBy={sortBy}
+              impactScores={impactScores}
             />
           ) : (
             <p className="text-stone-400">{t('no_thesis_found')}</p>
@@ -458,6 +472,7 @@ export default function DebatePage() {
       <DebateStatsModal debateId={debateId} isOpen={showStats} onClose={() => setShowStats(false)} />
       {showRoles && <RolesPanel debateId={debateId} onClose={() => setShowRoles(false)} />}
       {showDebateSettings && <DebateSettingsPanel debateId={debateId} onClose={() => setShowDebateSettings(false)} />}
+      {showSummary && <DebateSummaryPanel debateId={debateId} onClose={() => setShowSummary(false)} />}
     </div>
   );
 }

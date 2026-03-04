@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { VoteBar } from './VoteBar';
 import { PerspectiveTag } from './PerspectiveTag';
-import { EditorialNoteDisplay } from './EditorialNoteDisplay';
+import { ImpactIndicator } from './ImpactIndicator';
 import { useLanguage } from '@/components/LanguageProvider';
 import { TranslateButton } from '@/components/TranslateButton';
 import type { Argument } from '@/lib/types';
@@ -18,10 +18,11 @@ interface ClaimCardProps {
   onDelete?: (argId: string) => Promise<void>;
   isLoggedIn: boolean;
   canModify: boolean;
+  impactScore?: number;
 }
 
 export function ClaimCard({
-  arg, debateId, onDrillDown, onVote, onEdit, onDelete, isLoggedIn, canModify
+  arg, debateId, onDrillDown, onVote, onEdit, onDelete, isLoggedIn, canModify, impactScore
 }: ClaimCardProps) {
   const { t } = useLanguage();
   const [showMenu, setShowMenu] = useState(false);
@@ -149,8 +150,11 @@ export function ClaimCard({
         </div>
       )}
 
-      {/* Footer: child counts + comment count */}
+      {/* Footer: child counts + comment count + impact */}
       <div className="flex items-center gap-3 mt-3 text-xs text-stone-500">
+        {impactScore !== undefined && impactScore > 0 && (
+          <ImpactIndicator score={impactScore} size="sm" />
+        )}
         {hasChildren && (
           <button
             onClick={() => onDrillDown(arg.id)}
