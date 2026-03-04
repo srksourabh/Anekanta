@@ -8,12 +8,16 @@
   }
   h1, h2, h3, h4 {
     @apply font-heading;
+    font-variant-numeric: lining-nums;
+  }
+  .font-heading {
+    font-variant-numeric: lining-nums;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-saffron-600 text-white rounded-lg hover:bg-saffron-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply px-4 py-2 bg-saffron-600 text-white rounded-lg hover:bg-saffron-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
   }
   .btn-secondary {
     @apply px-4 py-2 bg-earth-100 text-earth-800 rounded-lg hover:bg-earth-200 transition-colors font-medium;
@@ -25,10 +29,10 @@
     @apply px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium;
   }
   .card {
-    @apply bg-white rounded-xl border border-stone-200 shadow-sm;
+    @apply bg-white rounded-xl border border-stone-200/80 shadow-sm;
   }
   .input-field {
-    @apply w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:border-transparent bg-white;
+    @apply w-full px-3 py-2 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-earth-300 focus:border-transparent bg-white;
   }
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
@@ -53,7 +57,7 @@
 
 /* Mandala decorative element */
 .mandala-bg {
-  background-image: radial-gradient(circle at 50% 50%, rgba(169, 120, 71, 0.03) 0%, transparent 70%);
+  background-image: radial-gradient(circle at 50% 50%, rgba(169, 120, 71, 0.015) 0%, transparent 70%);
 }
 
 /* Dual-column claim tree */
@@ -75,7 +79,7 @@
 
 /* Breadcrumb navigation */
 .breadcrumb-item {
-  @apply text-sm text-stone-500 hover:text-saffron-600 transition-colors cursor-pointer truncate max-w-[200px];
+  @apply text-sm text-stone-500 hover:text-earth-600 transition-colors cursor-pointer truncate max-w-[200px];
 }
 .breadcrumb-separator {
   @apply text-stone-300 mx-1 flex-shrink-0;

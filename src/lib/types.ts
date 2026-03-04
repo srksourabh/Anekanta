@@ -27,6 +27,10 @@ export interface Argument {
   depth: number;
   vote_score: number;
   is_anonymous?: boolean;
+  perspective?: string;
+  origin?: 'direct' | 'comment_branch';
+  is_pinned?: number;
+  is_highlighted?: number;
   created_at: string;
   author_name?: string;
   author_color?: string;
@@ -172,4 +176,27 @@ export interface VoteDistribution {
   distribution: number[];
   total: number;
   average: number;
+}
+
+export interface DebateRole {
+  id: string;
+  debate_id: string;
+  user_id: string;
+  role: 'moderator' | 'editor';
+  assigned_by: string;
+  created_at: string;
+  user_name?: string;
+  user_color?: string;
+  username?: string;
+}
+
+export interface EditorialNote {
+  id: string;
+  argument_id: string;
+  editor_id: string;
+  note: string;
+  note_type: 'note' | 'highlight' | 'pin';
+  created_at: string;
+  editor_name?: string;
+  editor_color?: string;
 }

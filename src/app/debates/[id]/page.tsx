@@ -12,6 +12,9 @@ import { PerspectivesPanel } from '@/components/PerspectivesPanel';
 import { GuidedVoting } from '@/components/GuidedVoting';
 import { PendingClaimsPanel } from '@/components/PendingClaimsPanel';
 import { ClaimSidePanel } from '@/components/ClaimSidePanel';
+import { RolesPanel } from '@/components/RolesPanel';
+import { DebateSettingsPanel } from '@/components/DebateSettingsPanel';
+import { StructuredDebateLayout } from '@/components/StructuredDebateLayout';
 import { useLanguage } from '@/components/LanguageProvider';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -40,8 +43,11 @@ export default function DebatePage() {
   const [sidePanelTab, setSidePanelTab] = useState<'comments' | 'history' | 'sources' | 'stats'>('comments');
   const [showEditDebate, setShowEditDebate] = useState(false);
   const [showDebateMenu, setShowDebateMenu] = useState(false);
+  const [showRoles, setShowRoles] = useState(false);
+  const [showDebateSettings, setShowDebateSettings] = useState(false);
   const [editFields, setEditFields] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'votes' | 'recent'>('votes');
+  const [tags, setTags] = useState<{ id: string; tag: string }[]>([]);
 
   // URL-as-state: current path through the argument tree
   const [currentPath, setCurrentPath] = useState<string[]>([]);
@@ -83,6 +89,7 @@ export default function DebatePage() {
   useEffect(() => {
     loadDebate();
     fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(setUser).catch(() => {});
+    fetch(`/api/debates/${debateId}/tags`).then(r => r.ok ? r.json() : { tags: [] }).then(d => setTags(d.tags || [])).catch(() => {});
   }, [loadDebate]);
 
   useEffect(() => {
@@ -262,6 +269,16 @@ export default function DebatePage() {
               {t('suggestions_pending')}
             </button>
           )}
+          {user && (debate.author_id === user.id || user.role === 'admin') && (
+            <>
+              <button onClick={() => setShowRoles(true)} className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors">
+                {t('roles_title')}
+              </button>
+              <button onClick={() => setShowDebateSettings(true)} className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors">
+                {t('debate_settings_title')}
+              </button>
+            </>
+          )}
 
           {user && (debate.author_id === user.id || user.role === 'admin') && (
             <div className="relative">
@@ -302,17 +319,9 @@ export default function DebatePage() {
         </div>
       )}
 
-      {/* Conclusion Section */}
-      {debate?.conclusion && (
-        <div className="card p-4 mb-6 border-l-4 border-earth-300 bg-earth-50">
-          <p className="text-xs font-medium text-earth-700 mb-2">CONCLUSION</p>
-          <p className="text-stone-700 text-sm">{debate.conclusion}</p>
-        </div>
-      )}
-
       {/* Content */}
       {view === 'dual' ? (
-        <div>
+        <StructuredDebateLayout debate={debate} tags={tags}>
           {!user && (
             <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
               <Link href="/auth/login" className="font-medium underline">{t('sign_in_prompt')}</Link> {t('sign_in_to_participate')}
@@ -336,7 +345,7 @@ export default function DebatePage() {
           ) : (
             <p className="text-stone-400">{t('no_thesis_found')}</p>
           )}
-        </div>
+        </StructuredDebateLayout>
       ) : view === 'tree' ? (
         <div>
           {!user && (
@@ -447,6 +456,8 @@ export default function DebatePage() {
         />
       )}
       <DebateStatsModal debateId={debateId} isOpen={showStats} onClose={() => setShowStats(false)} />
+      {showRoles && <RolesPanel debateId={debateId} onClose={() => setShowRoles(false)} />}
+      {showDebateSettings && <DebateSettingsPanel debateId={debateId} onClose={() => setShowDebateSettings(false)} />}
     </div>
   );
 }

@@ -61,7 +61,7 @@ export function ClaimSidePanel({ argumentId, debateId, isLoggedIn, initialTab = 
       {/* Content */}
       <div className="p-4">
         {activeTab === 'comments' && (
-          <CommentSection argumentId={argumentId} isLoggedIn={isLoggedIn} />
+          <CommentSection argumentId={argumentId} debateId={debateId} isLoggedIn={isLoggedIn} />
         )}
         {activeTab === 'history' && (
           <EditHistoryTab argumentId={argumentId} />

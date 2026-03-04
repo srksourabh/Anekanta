@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { VoteBar } from './VoteBar';
+import { PerspectiveTag } from './PerspectiveTag';
+import { EditorialNoteDisplay } from './EditorialNoteDisplay';
 import { useLanguage } from '@/components/LanguageProvider';
 import { TranslateButton } from '@/components/TranslateButton';
 import type { Argument } from '@/lib/types';
@@ -34,6 +36,9 @@ export function ClaimCard({
   const borderClass = arg.type === 'pro' ? 'claim-card-pro' : 'claim-card-con';
   const authorLabel = arg.is_anonymous ? t('debate_anonymous') : arg.author_name;
   const shouldTruncate = arg.content.length > 150 && !expanded;
+  const perspective = arg.perspective;
+  const isPinned = arg.is_pinned === 1;
+  const isHighlighted = arg.is_highlighted === 1;
 
   const handleSaveEdit = async () => {
     if (!editContent.trim() || editContent.length > 500) return;
@@ -47,7 +52,14 @@ export function ClaimCard({
   };
 
   return (
-    <div className={`card ${borderClass} p-4 hover:shadow-md transition-shadow group`}>
+    <div className={`card ${borderClass} p-4 hover:shadow-md transition-shadow group ${isHighlighted ? 'ring-1 ring-amber-200 bg-amber-50/30' : ''}`}>
+      {/* Pinned indicator */}
+      {isPinned && (
+        <div className="flex items-center gap-1 text-[10px] text-saffron-600 font-medium mb-1.5">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v2a2 2 0 01-2 2H7a2 2 0 01-2-2V5zm6 6a1 1 0 10-2 0v5a1 1 0 102 0v-5z"/></svg>
+          {t('pinned')}
+        </div>
+      )}
       {/* Header: author + vote + menu */}
       <div className="flex items-center gap-2 mb-2">
         <div
@@ -61,6 +73,7 @@ export function ClaimCard({
           <span className="mx-1.5 text-stone-300">&middot;</span>
           {formatDistanceToNow(new Date(arg.created_at), { addSuffix: true })}
         </span>
+        {perspective && <PerspectiveTag perspective={perspective} size="sm" />}
 
         <div className="ml-auto flex items-center gap-2">
           <VoteBar

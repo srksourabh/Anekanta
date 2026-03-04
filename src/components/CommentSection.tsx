@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useLanguage } from '@/components/LanguageProvider';
 import { TranslateButton } from '@/components/TranslateButton';
+import { CommentBranchForm } from '@/components/CommentBranchForm';
 
 interface CommentSectionProps {
   argumentId: string;
+  debateId: string;
   isLoggedIn: boolean;
+  onArgumentAdded?: () => void;
 }
 
-export function CommentSection({ argumentId, isLoggedIn }: CommentSectionProps) {
+export function CommentSection({ argumentId, debateId, isLoggedIn, onArgumentAdded }: CommentSectionProps) {
   const { t } = useLanguage();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -24,13 +27,14 @@ export function CommentSection({ argumentId, isLoggedIn }: CommentSectionProps) 
       .finally(() => setLoading(false));
   }, [argumentId]);
 
-  const handleSubmit = async () => {
-    if (!newComment.trim()) return;
+  const handleSubmit = async (content?: string) => {
+    const text = content || newComment;
+    if (!text.trim()) return;
     setSubmitting(true);
     const res = await fetch(`/api/arguments/${argumentId}/comments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newComment.trim() }),
+      body: JSON.stringify({ content: text.trim() }),
     });
     if (res.ok) {
       const comment = await res.json();
@@ -69,18 +73,20 @@ export function CommentSection({ argumentId, isLoggedIn }: CommentSectionProps) 
             ))}
           </div>
           {isLoggedIn && (
-            <div className="flex gap-2">
-              <input
-                value={newComment}
-                onChange={e => setNewComment(e.target.value)}
-                placeholder={t('debate_add_comment')}
-                className="input-field text-xs py-1.5"
-                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-              />
-              <button onClick={handleSubmit} disabled={submitting || !newComment.trim()} className="btn-primary text-xs py-1.5 px-3">
-                {t('debate_submit')}
-              </button>
-            </div>
+            <CommentBranchForm
+              argumentId={argumentId}
+              debateId={debateId}
+              onAddArgument={async (parentId, content, type, perspective) => {
+                const res = await fetch(`/api/debates/${debateId}/arguments`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ parentId, content, type, perspective, origin: 'comment_branch' }),
+                });
+                if (res.ok && onArgumentAdded) onArgumentAdded();
+              }}
+              onAddComment={handleSubmit}
+              onCancel={() => {}}
+            />
           )}
         </>
       )}

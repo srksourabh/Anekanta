@@ -185,7 +185,7 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
           </div>
         )}
 
-        {showComments && <CommentSection argumentId={arg.id} isLoggedIn={isLoggedIn} />}
+        {showComments && <CommentSection argumentId={arg.id} debateId={debateId} isLoggedIn={isLoggedIn} />}
       </div>
 
       {expanded && hasChildren && (

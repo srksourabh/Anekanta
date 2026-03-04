@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { generateAnonymousIdentity } from '@/lib/anonymous';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       (SELECT COUNT(*) FROM comments WHERE argument_id = a.id) as comment_count
     FROM arguments a JOIN users u ON a.author_id = u.id
     WHERE a.debate_id = ?
-    ORDER BY a.vote_score DESC, a.created_at ASC
+    ORDER BY a.is_pinned DESC, a.vote_score DESC, a.created_at ASC
   `).all(id) as any[];
 
   // Get user's votes if logged in
@@ -53,6 +54,26 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       thesis = a;
     } else if (a.parent_id && argMap.has(a.parent_id)) {
       argMap.get(a.parent_id).children.push(a);
+    }
+  }
+
+  // Enforce anonymous mode: replace author info with anonymous identities
+  const debateData = debate as any;
+  const anonMode = debateData.anonymous_mode;
+  const isOwnerOrAdmin = user && (debateData.author_id === user.id || user.role === 'admin');
+
+  if (anonMode && anonMode !== 'none') {
+    for (const a of args) {
+      // Debate owner/admin can always see real identities
+      if (isOwnerOrAdmin) continue;
+      if (anonMode === 'animal') {
+        const identity = generateAnonymousIdentity(id, a.author_id);
+        a.author_name = identity.name;
+        a.author_color = identity.color;
+      } else if (anonMode === 'full') {
+        a.author_name = 'Anonymous';
+        a.author_color = '#9ca3af';
+      }
     }
   }
 

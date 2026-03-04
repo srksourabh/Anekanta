@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { canModerate } from '@/lib/permissions';
 import { nanoid } from 'nanoid';
 import { moderateContent } from '@/lib/moderation';
 
@@ -13,12 +14,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const db = await getDb();
   const debateId = params.id;
 
-  // Check if user is debate owner or admin
-  const debate = await db.prepare('SELECT author_id FROM debates WHERE id = ?').get(debateId) as any;
-  const isOwner = debate && (debate.author_id === user.id || user.role === 'admin');
+  // Check if user is debate owner, admin, or moderator
+  const isModerator = await canModerate(user, debateId);
 
   let claims;
-  if (isOwner) {
+  if (isModerator) {
     claims = await db.prepare(`
       SELECT pc.*, u.display_name as author_name, u.avatar_color as author_color
       FROM pending_claims pc
@@ -73,9 +73,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const debateId = params.id;
   const { claimId, action } = await req.json();
 
-  // Check ownership
-  const debate = await db.prepare('SELECT author_id FROM debates WHERE id = ?').get(debateId) as any;
-  if (!debate || (debate.author_id !== user.id && user.role !== 'admin')) {
+  // Check ownership or moderator role
+  const isModerator = await canModerate(user, debateId);
+  if (!isModerator) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

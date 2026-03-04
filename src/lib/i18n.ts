@@ -294,6 +294,7 @@ export const translations = {
     claim_con_count: 'Con',
     claim_unseen: 'New changes',
     claim_show_more: 'Show more',
+    pinned: 'Pinned',
 
     // Side panel
     panel_comments: 'Comments',
@@ -378,6 +379,48 @@ export const translations = {
     stats_claims: 'Claims',
     stats_contributions: 'Contributions',
     stats_last_active: 'Last Active',
+
+    // Roles & Moderation
+    roles_title: 'Manage Roles',
+    roles_assign: 'Assign a Role',
+    roles_username_placeholder: 'Enter username',
+    roles_assign_btn: 'Assign',
+    roles_remove: 'Remove',
+    roles_none: 'None assigned',
+    role_moderator: 'Moderator',
+    role_editor: 'Editor',
+    role_moderators: 'Moderators',
+    role_editors: 'Editors',
+    role_moderator_desc: 'Can approve/reject pending claims and flag content',
+    role_editor_desc: 'Can pin, highlight, and add editorial notes to arguments',
+
+    // Debate Settings Panel
+    debate_settings_title: 'Debate Settings',
+    settings_who_can_post: 'Who Can Post',
+    settings_anyone: 'Anyone',
+    settings_team_members: 'Team Members Only',
+    settings_max_args: 'Max Arguments Per User',
+    settings_max_args_hint: 'Leave empty for no limit',
+    settings_time_limit: 'Argument Deadline',
+    settings_time_limit_hint: 'After this date, no new arguments can be added',
+    settings_max_depth: 'Max Argument Depth',
+
+    // Comment Branches
+    comment_branch_pro: 'Supporting Argument',
+    comment_branch_con: 'Counter Argument',
+    comment_branch_discuss: 'Discussion',
+    comment_branch_pro_ph: 'Write a supporting argument...',
+    comment_branch_con_ph: 'Write a counter argument...',
+    comment_branch_add_pro: 'Add as Pro',
+    comment_branch_add_con: 'Add as Con',
+
+    // Perspectives
+    perspective_optional: 'Perspective (optional)',
+    perspective_filter: 'Filter by Perspective',
+
+    // Tags
+    tags_label: 'Tags',
+    tags_add: 'Add tags to this debate',
   },
 
   bn: {
@@ -664,6 +707,7 @@ export const translations = {
     claim_con_count: 'বিপক্ষে',
     claim_unseen: 'নতুন পরিবর্তন',
     claim_show_more: 'আরো দেখুন',
+    pinned: 'পিন করা',
     panel_comments: 'মন্তব্য',
     panel_history: 'ইতিহাস',
     panel_sources: 'সূত্র',
@@ -728,6 +772,48 @@ export const translations = {
     stats_claims: 'দাবি',
     stats_contributions: 'অবদান',
     stats_last_active: 'সর্বশেষ সক্রিয়',
+
+    // Roles & Moderation
+    roles_title: 'ভূমিকা পরিচালনা',
+    roles_assign: 'ভূমিকা বরাদ্দ করুন',
+    roles_username_placeholder: 'ব্যবহারকারীর নাম লিখুন',
+    roles_assign_btn: 'বরাদ্দ',
+    roles_remove: 'সরান',
+    roles_none: 'কেউ বরাদ্দ নেই',
+    role_moderator: 'মডারেটর',
+    role_editor: 'সম্পাদক',
+    role_moderators: 'মডারেটরগণ',
+    role_editors: 'সম্পাদকগণ',
+    role_moderator_desc: 'মুলতুবি দাবি অনুমোদন/প্রত্যাখ্যান এবং বিষয়বস্তু পতাকাঙ্কিত করতে পারেন',
+    role_editor_desc: 'যুক্তি পিন, হাইলাইট এবং সম্পাদকীয় নোট যোগ করতে পারেন',
+
+    // Debate Settings Panel
+    debate_settings_title: 'বিতর্কের সেটিংস',
+    settings_who_can_post: 'কে পোস্ট করতে পারে',
+    settings_anyone: 'যে কেউ',
+    settings_team_members: 'শুধুমাত্র দলের সদস্য',
+    settings_max_args: 'প্রতি ব্যবহারকারী সর্বোচ্চ যুক্তি',
+    settings_max_args_hint: 'সীমা না থাকলে খালি রাখুন',
+    settings_time_limit: 'যুক্তির সময়সীমা',
+    settings_time_limit_hint: 'এই তারিখের পরে নতুন যুক্তি যোগ করা যাবে না',
+    settings_max_depth: 'সর্বোচ্চ যুক্তির গভীরতা',
+
+    // Comment Branches
+    comment_branch_pro: 'সমর্থনমূলক যুক্তি',
+    comment_branch_con: 'প্রতিযুক্তি',
+    comment_branch_discuss: 'আলোচনা',
+    comment_branch_pro_ph: 'একটি সমর্থনমূলক যুক্তি লিখুন...',
+    comment_branch_con_ph: 'একটি প্রতিযুক্তি লিখুন...',
+    comment_branch_add_pro: 'সমর্থনে যোগ করুন',
+    comment_branch_add_con: 'বিরোধিতায় যোগ করুন',
+
+    // Perspectives
+    perspective_optional: 'দৃষ্টিভঙ্গি (ঐচ্ছিক)',
+    perspective_filter: 'দৃষ্টিভঙ্গি অনুযায়ী ফিল্টার',
+
+    // Tags
+    tags_label: 'ট্যাগ',
+    tags_add: 'এই বিতর্কে ট্যাগ যোগ করুন',
   },
 } as const;
 

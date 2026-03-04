@@ -328,6 +328,19 @@ export default function NewDebatePage() {
               <option value="full">{t('anon_mode_full')}</option>
             </select>
           </div>
+
+          {/* Who Can Post */}
+          <div className="p-3 bg-earth-50 rounded-lg">
+            <label className="block text-sm font-medium text-earth-700 mb-1">{t('settings_who_can_post')}</label>
+            <select
+              value="anyone"
+              className="input-field w-full"
+              disabled={submitting}
+            >
+              <option value="anyone">{t('settings_anyone')}</option>
+              <option value="team_members">{t('settings_team_members')}</option>
+            </select>
+          </div>
         </div>
 
         {/* Warnings indicator */}

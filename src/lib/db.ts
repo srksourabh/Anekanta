@@ -395,9 +395,57 @@ async function initializeSchema(database: CompatDb) {
     )
   `);
 
+  // Debate roles (moderator/editor per-debate)
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS debate_roles (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT NOT NULL,
+      assigned_by TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(debate_id, user_id, role)
+    )
+  `);
+
+  // Editorial notes (editor annotations on arguments)
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS editorial_notes (
+      id TEXT PRIMARY KEY,
+      argument_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      editor_id TEXT NOT NULL REFERENCES users(id),
+      note TEXT NOT NULL,
+      note_type TEXT DEFAULT 'note',
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
   // Add new columns to debates (safe with IF NOT EXISTS pattern via try/catch)
   try { await database.exec(`ALTER TABLE debates ADD COLUMN requires_approval INTEGER DEFAULT 0`); } catch {}
   try { await database.exec(`ALTER TABLE debates ADD COLUMN anonymous_mode TEXT DEFAULT 'off'`); } catch {}
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN who_can_post TEXT DEFAULT 'anyone'`); } catch {}
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN max_argument_depth INTEGER DEFAULT 10`); } catch {}
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN argument_time_limit TEXT DEFAULT NULL`); } catch {}
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN max_arguments_per_user INTEGER DEFAULT NULL`); } catch {}
+
+  // Add new columns to arguments
+  try { await database.exec(`ALTER TABLE arguments ADD COLUMN is_pinned INTEGER DEFAULT 0`); } catch {}
+  try { await database.exec(`ALTER TABLE arguments ADD COLUMN is_highlighted INTEGER DEFAULT 0`); } catch {}
+  try { await database.exec(`ALTER TABLE arguments ADD COLUMN perspective TEXT DEFAULT ''`); } catch {}
+  try { await database.exec(`ALTER TABLE arguments ADD COLUMN origin TEXT DEFAULT 'direct'`); } catch {}
+
+  // Add sub_category to debates
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN sub_category TEXT DEFAULT ''`); } catch {}
+
+  // Debate tags table
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS debate_tags (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      tag TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
 
   // Indexes - each as separate statement for Turso compatibility
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id)`);
@@ -423,4 +471,9 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_articles_author ON articles(author_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_article_responses_article ON article_responses(article_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_roles_debate ON debate_roles(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_roles_user ON debate_roles(user_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_editorial_notes_arg ON editorial_notes(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_tags_debate ON debate_tags(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_tags_tag ON debate_tags(tag)`);
 }

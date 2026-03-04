@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
+import { canPostArgument } from '@/lib/permissions';
 import { nanoid } from 'nanoid';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 });
 
-  const { parentId, content, type, is_anonymous } = await req.json();
+  const { parentId, content, type, is_anonymous, perspective, origin } = await req.json();
   if (!content || !type || !['pro', 'con'].includes(type)) {
     return NextResponse.json({ error: 'Content and valid type (pro/con) required' }, { status: 400 });
   }
@@ -25,6 +26,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const db = await getDb();
   const debateId = params.id;
+
+  // Check environment controls (who can post, max args, time limit)
+  const postCheck = await canPostArgument(user, debateId);
+  if (!postCheck.allowed) {
+    return NextResponse.json({ error: postCheck.reason }, { status: 403 });
+  }
 
   const parent = await db.prepare('SELECT * FROM arguments WHERE id = ? AND debate_id = ?').get(parentId, debateId) as any;
   if (!parent) return NextResponse.json({ error: 'Parent not found' }, { status: 404 });
@@ -45,8 +52,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const id = nanoid();
   const depth = parent.depth + 1;
 
-  await db.prepare(`INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, is_anonymous) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(id, debateId, parentId, user.id, content, type, depth, is_anonymous ? 1 : 0);
+  await db.prepare(`INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth, is_anonymous, perspective, origin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, debateId, parentId, user.id, content, type, depth, is_anonymous ? 1 : 0, perspective || '', origin || 'direct');
 
   if (modResult.flags.length > 0) {
     await db.prepare('INSERT INTO flagged_content (id, content_type, content_id, author_id, reason, flags, score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')

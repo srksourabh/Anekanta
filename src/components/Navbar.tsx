@@ -25,7 +25,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#1a3a3a] via-[#1a4a4a] to-[#1a3a3a] shadow-md">
+    <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#1c2e2e] via-[#1f3838] to-[#1c2e2e] shadow-md">
       {/* Subtle decorative top border — saffron/gold */}
       <div className="h-1 bg-gradient-to-r from-transparent via-saffron-500 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,7 +103,7 @@ export function Navbar() {
                 <Link href="/auth/login" className="text-sm text-teal-200 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10">
                   {t('nav_login')}
                 </Link>
-                <Link href="/auth/register" className="text-sm bg-saffron-600 text-white px-4 py-1.5 rounded-lg hover:bg-saffron-500 transition-colors font-medium shadow-sm">
+                <Link href="/auth/register" className="text-sm bg-saffron-600 text-white px-4 py-1.5 rounded-lg hover:bg-saffron-500 transition-colors font-medium shadow-sm border border-saffron-500/30">
                   {t('nav_register')}
                 </Link>
               </div>
@@ -128,7 +128,7 @@ export function Navbar() {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-teal-700/30 bg-[#1a3a3a]/95 backdrop-blur-sm">
+        <div className="md:hidden border-t border-teal-700/30 bg-[#1c2e2e]/95 backdrop-blur-sm">
           <div className="px-4 py-3 space-y-1">
             <MobileNavLink href="/debates" onClick={() => setMobileOpen(false)}>{t('nav_debates')}</MobileNavLink>
             <MobileNavLink href="/debates/new" onClick={() => setMobileOpen(false)}>{t('nav_new_debate')}</MobileNavLink>
