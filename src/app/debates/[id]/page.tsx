@@ -1,35 +1,70 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ArgumentNode } from '@/components/ArgumentNode';
+import { DualColumnTree } from '@/components/DualColumnTree';
 import { ActivityFeed } from '@/components/ActivityFeed';
 import { TeamsPanel } from '@/components/TeamsPanel';
 import { SourcesPanel } from '@/components/SourcesPanel';
 import { DebateStatsModal } from '@/components/DebateStatsModal';
 import { PerspectivesPanel } from '@/components/PerspectivesPanel';
+import { GuidedVoting } from '@/components/GuidedVoting';
+import { PendingClaimsPanel } from '@/components/PendingClaimsPanel';
+import { ClaimSidePanel } from '@/components/ClaimSidePanel';
 import { useLanguage } from '@/components/LanguageProvider';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
+type ViewMode = 'dual' | 'tree' | 'activity';
+
 export default function DebatePage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const debateId = params.id as string;
   const { t, getCategoryLabel } = useLanguage();
+
   const [debate, setDebate] = useState<any>(null);
   const [thesis, setThesis] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<'tree' | 'activity'>('tree');
+  const [view, setView] = useState<ViewMode>('dual');
   const [showTeams, setShowTeams] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showPerspectives, setShowPerspectives] = useState(false);
+  const [showGuidedVoting, setShowGuidedVoting] = useState(false);
+  const [showPendingClaims, setShowPendingClaims] = useState(false);
+  const [sidePanelArg, setSidePanelArg] = useState<string | null>(null);
+  const [sidePanelTab, setSidePanelTab] = useState<'comments' | 'history' | 'sources' | 'stats'>('comments');
   const [showEditDebate, setShowEditDebate] = useState(false);
   const [showDebateMenu, setShowDebateMenu] = useState(false);
   const [editFields, setEditFields] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'votes' | 'recent'>('votes');
+
+  // URL-as-state: current path through the argument tree
+  const [currentPath, setCurrentPath] = useState<string[]>([]);
+
+  // Initialize path from URL
+  useEffect(() => {
+    const pathParam = searchParams.get('path');
+    if (pathParam) {
+      setCurrentPath(pathParam.split(','));
+    }
+  }, [searchParams]);
+
+  // Update URL when path changes
+  const handleNavigate = useCallback((path: string[]) => {
+    setCurrentPath(path);
+    const url = new URL(window.location.href);
+    if (path.length > 1) {
+      url.searchParams.set('path', path.join(','));
+    } else {
+      url.searchParams.delete('path');
+    }
+    window.history.replaceState({}, '', url.toString());
+  }, []);
 
   const loadDebate = useCallback(async () => {
     const res = await fetch(`/api/debates/${debateId}`);
@@ -37,9 +72,13 @@ export default function DebatePage() {
       const data = await res.json();
       setDebate(data.debate);
       setThesis(data.thesis);
+      // Set initial path to thesis if not already set
+      if (currentPath.length === 0 && data.thesis) {
+        setCurrentPath([data.thesis.id]);
+      }
     }
     setLoading(false);
-  }, [debateId]);
+  }, [debateId, currentPath.length]);
 
   useEffect(() => {
     loadDebate();
@@ -60,16 +99,28 @@ export default function DebatePage() {
     }
   }, [debate]);
 
+  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+
   const handleAddArgument = async (parentId: string, content: string, type: 'pro' | 'con') => {
+    if (!content) return;
     const res = await fetch(`/api/debates/${debateId}/arguments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ parentId, content, type }),
     });
-    if (res.ok) {
-      await loadDebate(); // Reload tree
+    if (res.status === 202) {
+      // Claim was submitted for approval
+      setPendingMessage(t('suggestions_submitted'));
+      setTimeout(() => setPendingMessage(null), 3000);
+    } else if (res.ok) {
+      await loadDebate();
     }
   };
+
+  const handleOpenPanel = useCallback((argId: string, tab: 'comments' | 'history' | 'sources' | 'stats') => {
+    setSidePanelArg(argId);
+    setSidePanelTab(tab);
+  }, []);
 
   const handleVote = async (argId: string, value: number) => {
     await fetch(`/api/arguments/${argId}/vote`, {
@@ -127,7 +178,7 @@ export default function DebatePage() {
   const conCount = thesis?.children?.filter((c: any) => c.type === 'con').length || 0;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
       {/* Header */}
       <div className="mb-6">
         <Link href="/debates" className="text-sm text-stone-500 hover:text-stone-700 mb-2 inline-block">{t('all_debates_link')}</Link>
@@ -162,16 +213,21 @@ export default function DebatePage() {
 
       {/* Toolbar */}
       <div className="flex items-center gap-2 mb-6 flex-wrap">
+        {/* View mode tabs */}
         <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
-          <button onClick={() => setView('tree')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'tree' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
-            {t('debate_arguments_tab')}
+          <button onClick={() => setView('dual')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'dual' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
+            {t('view_dual_column')}
           </button>
-          <button onClick={() => setView('activity')} className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'activity' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
+          <button onClick={() => setView('tree')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'tree' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
+            {t('view_classic_tree')}
+          </button>
+          <button onClick={() => setView('activity')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'activity' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
             {t('debate_activity')}
           </button>
         </div>
 
-        {view === 'tree' && (
+        {/* Sort toggle (for tree views) */}
+        {(view === 'dual' || view === 'tree') && (
           <div className="flex gap-1 bg-stone-100 rounded-lg p-1 ml-auto">
             <button onClick={() => setSortBy('votes')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${sortBy === 'votes' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
               Top Votes
@@ -196,6 +252,16 @@ export default function DebatePage() {
           <button onClick={() => setShowPerspectives(true)} className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors">
             Perspectives
           </button>
+          {user && (
+            <button onClick={() => setShowGuidedVoting(true)} className="px-3 py-1.5 rounded-lg text-sm bg-saffron-100 text-saffron-700 hover:bg-saffron-200 transition-colors">
+              {t('guided_voting_title')}
+            </button>
+          )}
+          {user && debate && (debate.author_id === user.id || user.role === 'admin') && debate.requires_approval === 1 && (
+            <button onClick={() => setShowPendingClaims(true)} className="px-3 py-1.5 rounded-lg text-sm bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors">
+              {t('suggestions_pending')}
+            </button>
+          )}
 
           {user && (debate.author_id === user.id || user.role === 'admin') && (
             <div className="relative">
@@ -245,7 +311,33 @@ export default function DebatePage() {
       )}
 
       {/* Content */}
-      {view === 'tree' ? (
+      {view === 'dual' ? (
+        <div>
+          {!user && (
+            <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
+              <Link href="/auth/login" className="font-medium underline">{t('sign_in_prompt')}</Link> {t('sign_in_to_participate')}
+            </div>
+          )}
+          {thesis ? (
+            <DualColumnTree
+              thesis={thesis}
+              debateId={debateId}
+              currentPath={currentPath}
+              onNavigate={handleNavigate}
+              onAddArgument={handleAddArgument}
+              onVote={handleVote}
+              onRefresh={loadDebate}
+              onOpenPanel={handleOpenPanel}
+              isLoggedIn={!!user}
+              currentUserId={user?.id}
+              currentUserRole={user?.role}
+              sortBy={sortBy}
+            />
+          ) : (
+            <p className="text-stone-400">{t('no_thesis_found')}</p>
+          )}
+        </div>
+      ) : view === 'tree' ? (
         <div>
           {!user && (
             <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
@@ -332,10 +424,28 @@ export default function DebatePage() {
         </div>
       )}
 
+      {/* Pending claim submission toast */}
+      {pendingMessage && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-amber-100 text-amber-800 px-4 py-2 rounded-lg shadow-lg text-sm z-50 border border-amber-200">
+          {pendingMessage}
+        </div>
+      )}
+
       {/* Panels */}
       {showTeams && <TeamsPanel debateId={debateId} currentUserId={user?.id} onClose={() => setShowTeams(false)} />}
       {showSources && <SourcesPanel debateId={debateId} onClose={() => setShowSources(false)} />}
       {showPerspectives && <PerspectivesPanel onClose={() => setShowPerspectives(false)} />}
+      {showGuidedVoting && <GuidedVoting debateId={debateId} onVote={handleVote} onClose={() => setShowGuidedVoting(false)} />}
+      {showPendingClaims && <PendingClaimsPanel debateId={debateId} onClose={() => setShowPendingClaims(false)} onRefresh={loadDebate} />}
+      {sidePanelArg && (
+        <ClaimSidePanel
+          argumentId={sidePanelArg}
+          debateId={debateId}
+          isLoggedIn={!!user}
+          initialTab={sidePanelTab}
+          onClose={() => setSidePanelArg(null)}
+        />
+      )}
       <DebateStatsModal debateId={debateId} isOpen={showStats} onClose={() => setShowStats(false)} />
     </div>
   );

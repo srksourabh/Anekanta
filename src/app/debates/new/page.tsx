@@ -33,7 +33,9 @@ export default function NewDebatePage() {
   const [conclusion, setConclusion] = useState('');
   const [category, setCategory] = useState('general');
   const [isAnonymous, setIsAnonymous] = useState(false);
-  
+  const [requiresApproval, setRequiresApproval] = useState(false);
+  const [anonymousMode, setAnonymousMode] = useState<'off' | 'animal' | 'full'>('off');
+
   const [moderation, setModeration] = useState<ModerationState>({});
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -85,6 +87,8 @@ export default function NewDebatePage() {
           conclusion,
           category,
           is_anonymous: isAnonymous,
+          requires_approval: requiresApproval,
+          anonymous_mode: anonymousMode,
           moderation_score: Math.max(
             moderation.title?.score || 0,
             moderation.tagline?.score || 0,
@@ -272,19 +276,58 @@ export default function NewDebatePage() {
           </select>
         </div>
 
-        {/* Anonymous toggle */}
-        <div className="flex items-center gap-3 p-3 bg-earth-50 rounded-lg">
-          <input
-            type="checkbox"
-            id="anonymous"
-            checked={isAnonymous}
-            onChange={e => setIsAnonymous(e.target.checked)}
-            disabled={submitting}
-            className="rounded"
-          />
-          <label htmlFor="anonymous" className="text-sm font-medium text-earth-700 cursor-pointer">
-            {t('new_debate_form_anonymous')}
-          </label>
+        {/* Debate Settings */}
+        <div className="border-t pt-6">
+          <h2 className="text-lg font-semibold text-earth-900 mb-4">{t('new_debate_settings')}</h2>
+
+          {/* Anonymous toggle */}
+          <div className="flex items-center gap-3 p-3 bg-earth-50 rounded-lg mb-3">
+            <input
+              type="checkbox"
+              id="anonymous"
+              checked={isAnonymous}
+              onChange={e => setIsAnonymous(e.target.checked)}
+              disabled={submitting}
+              className="rounded"
+            />
+            <label htmlFor="anonymous" className="text-sm font-medium text-earth-700 cursor-pointer">
+              {t('new_debate_form_anonymous')}
+            </label>
+          </div>
+
+          {/* Require Approval */}
+          <div className="flex items-center gap-3 p-3 bg-earth-50 rounded-lg mb-3">
+            <input
+              type="checkbox"
+              id="requires_approval"
+              checked={requiresApproval}
+              onChange={e => setRequiresApproval(e.target.checked)}
+              disabled={submitting}
+              className="rounded"
+            />
+            <div>
+              <label htmlFor="requires_approval" className="text-sm font-medium text-earth-700 cursor-pointer">
+                {t('new_debate_require_approval')}
+              </label>
+              <p className="text-xs text-earth-400 mt-0.5">{t('new_debate_require_approval_hint')}</p>
+            </div>
+          </div>
+
+          {/* Anonymous Mode */}
+          <div className="p-3 bg-earth-50 rounded-lg">
+            <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_anonymous_mode')}</label>
+            <p className="text-xs text-earth-400 mb-2">{t('new_debate_anonymous_mode_hint')}</p>
+            <select
+              value={anonymousMode}
+              onChange={e => setAnonymousMode(e.target.value as 'off' | 'animal' | 'full')}
+              className="input-field w-full"
+              disabled={submitting}
+            >
+              <option value="off">{t('anon_mode_off')}</option>
+              <option value="animal">{t('anon_mode_animal')}</option>
+              <option value="full">{t('anon_mode_full')}</option>
+            </select>
+          </div>
         </div>
 
         {/* Warnings indicator */}

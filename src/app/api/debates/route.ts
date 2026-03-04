@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 });
 
-  const { title, description, thesis, category, tagline, conclusion, is_anonymous } = await req.json();
+  const { title, description, thesis, category, tagline, conclusion, is_anonymous, requires_approval, anonymous_mode } = await req.json();
   if (!title || !thesis) {
     return NextResponse.json({ error: 'Title and thesis required' }, { status: 400 });
   }
@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
   const debateId = nanoid();
   const thesisId = nanoid();
 
-  await db.prepare(`INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion, is_anonymous) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-    .run(debateId, title, description || '', thesis, user.id, category || 'general', tagline || '', conclusion || '', is_anonymous ? 1 : 0);
+  await db.prepare(`INSERT INTO debates (id, title, description, thesis, author_id, category, tagline, conclusion, is_anonymous, requires_approval, anonymous_mode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(debateId, title, description || '', thesis, user.id, category || 'general', tagline || '', conclusion || '', is_anonymous ? 1 : 0, requires_approval ? 1 : 0, anonymous_mode || 'off');
 
   await db.prepare(`INSERT INTO arguments (id, debate_id, parent_id, author_id, content, type, depth) VALUES (?, ?, NULL, ?, ?, 'thesis', 0)`)
     .run(thesisId, debateId, user.id, thesis);

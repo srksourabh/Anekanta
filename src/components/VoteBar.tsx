@@ -30,7 +30,7 @@ export function VoteBar({ argId, score, userVote, onVote, isLoggedIn }: VoteBarP
     <div className="flex items-center gap-2">
       <span className="text-xs text-stone-500 font-medium w-6 text-right">{currentScore}</span>
       <div className="flex gap-0.5" onMouseLeave={() => setHoveredValue(null)}>
-        {[1, 2, 3, 4].map(v => (
+        {[0, 1, 2, 3, 4].map(v => (
           <button
             key={v}
             onClick={() => handleVote(v)}

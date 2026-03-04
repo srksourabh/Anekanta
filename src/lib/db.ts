@@ -314,6 +314,91 @@ async function initializeSchema(database: CompatDb) {
     )
   `);
 
+  // New tables for Kialo-style features
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS pending_claims (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      parent_id TEXT NOT NULL REFERENCES arguments(id) ON DELETE CASCADE,
+      author_id TEXT NOT NULL REFERENCES users(id),
+      content TEXT NOT NULL,
+      type TEXT NOT NULL,
+      status TEXT DEFAULT 'pending',
+      reviewed_by TEXT REFERENCES users(id),
+      reviewed_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS anonymous_identities (
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      anonymous_name TEXT NOT NULL,
+      anonymous_color TEXT NOT NULL,
+      PRIMARY KEY (debate_id, user_id)
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      created_by TEXT NOT NULL REFERENCES users(id),
+      assigned_to TEXT REFERENCES users(id),
+      task_type TEXT NOT NULL,
+      target_count INTEGER NOT NULL,
+      current_count INTEGER DEFAULT 0,
+      status TEXT DEFAULT 'active',
+      due_date TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      completed_at TEXT
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS articles (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      summary TEXT DEFAULT '',
+      author_id TEXT NOT NULL REFERENCES users(id),
+      category TEXT NOT NULL DEFAULT 'general',
+      status TEXT DEFAULT 'published',
+      cover_image_url TEXT DEFAULT '',
+      read_time_minutes INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS article_responses (
+      id TEXT PRIMARY KEY,
+      article_id TEXT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+      parent_id TEXT REFERENCES article_responses(id) ON DELETE CASCADE,
+      author_id TEXT NOT NULL REFERENCES users(id),
+      content TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'agree',
+      vote_score INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS debate_follows (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      followed_at TEXT DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, debate_id)
+    )
+  `);
+
+  // Add new columns to debates (safe with IF NOT EXISTS pattern via try/catch)
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN requires_approval INTEGER DEFAULT 0`); } catch {}
+  try { await database.exec(`ALTER TABLE debates ADD COLUMN anonymous_mode TEXT DEFAULT 'off'`); } catch {}
+
   // Indexes - each as separate statement for Turso compatibility
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_debate ON arguments(debate_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_arguments_parent ON arguments(parent_id)`);
@@ -330,4 +415,12 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id)`);
+
+  // New indexes for Kialo-style features
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_pending_debate ON pending_claims(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_tasks_debate ON tasks(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks(assigned_to)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_articles_author ON articles(author_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_articles_category ON articles(category)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_article_responses_article ON article_responses(article_id)`);
 }

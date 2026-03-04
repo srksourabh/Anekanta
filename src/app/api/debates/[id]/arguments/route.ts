@@ -29,6 +29,19 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parent = await db.prepare('SELECT * FROM arguments WHERE id = ? AND debate_id = ?').get(parentId, debateId) as any;
   if (!parent) return NextResponse.json({ error: 'Parent not found' }, { status: 404 });
 
+  // Check if debate requires approval for new claims
+  const debate = await db.prepare('SELECT requires_approval, author_id FROM debates WHERE id = ?').get(debateId) as any;
+  const isOwner = debate && (debate.author_id === user.id);
+
+  if (debate?.requires_approval && !isOwner) {
+    // Route to pending_claims instead of arguments
+    const pendingId = nanoid();
+    await db.prepare(`INSERT INTO pending_claims (id, debate_id, parent_id, author_id, content, type, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))`)
+      .run(pendingId, debateId, parentId, user.id, content, type);
+
+    return NextResponse.json({ pending: true, message: 'Claim submitted for approval' }, { status: 202 });
+  }
+
   const id = nanoid();
   const depth = parent.depth + 1;
 

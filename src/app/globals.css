@@ -56,6 +56,51 @@
   background-image: radial-gradient(circle at 50% 50%, rgba(169, 120, 71, 0.03) 0%, transparent 70%);
 }
 
+/* Dual-column claim tree */
+.claim-card-pro {
+  @apply border-l-4 border-green-400 hover:border-green-500 transition-colors;
+}
+.claim-card-con {
+  @apply border-l-4 border-red-400 hover:border-red-500 transition-colors;
+}
+.claim-card-thesis {
+  @apply border-l-4 border-earth-400;
+}
+.column-header-pro {
+  @apply bg-green-50 border-b-2 border-green-200 text-green-800;
+}
+.column-header-con {
+  @apply bg-red-50 border-b-2 border-red-200 text-red-800;
+}
+
+/* Breadcrumb navigation */
+.breadcrumb-item {
+  @apply text-sm text-stone-500 hover:text-saffron-600 transition-colors cursor-pointer truncate max-w-[200px];
+}
+.breadcrumb-separator {
+  @apply text-stone-300 mx-1 flex-shrink-0;
+}
+
+/* Side panel slide-in */
+.side-panel {
+  @apply fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 overflow-y-auto;
+  animation: slideInRight 0.2s ease-out;
+}
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Side drawer slide-in from left */
+.side-drawer {
+  @apply fixed top-0 left-0 h-full w-72 bg-white shadow-2xl z-50 overflow-y-auto;
+  animation: slideInLeft 0.2s ease-out;
+}
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
