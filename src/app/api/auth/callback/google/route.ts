@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { findOrCreateOAuthUser, createSession } from '@/lib/auth';
+import { findOrCreateOAuthUser, createSessionToken } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -66,9 +66,17 @@ export async function GET(request: NextRequest) {
 
     // Find or create user, then create session
     const user = await findOrCreateOAuthUser('google', googleId, email, name || email.split('@')[0]);
-    await createSession(user);
+    const token = await createSessionToken(user);
 
-    return NextResponse.redirect(baseUrl);
+    const response = NextResponse.redirect(baseUrl);
+    response.cookies.set('anekanta-session', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
+    return response;
   } catch {
     return NextResponse.redirect(`${baseUrl}/auth/login?error=oauth_failed`);
   }

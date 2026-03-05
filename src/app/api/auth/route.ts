@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, authenticateUser, createSession, destroySession } from '@/lib/auth';
+import { createUser, authenticateUser, createSessionToken, destroySession } from '@/lib/auth';
+
+const COOKIE_NAME = 'anekanta-session';
+
+function setSessionCookie(response: NextResponse, token: string) {
+  response.cookies.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/',
+  });
+  return response;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,8 +32,9 @@ export async function POST(req: NextRequest) {
       }
       try {
         const user = await createUser(username, email, password, displayName);
-        await createSession(user);
-        return NextResponse.json({ user });
+        const token = await createSessionToken(user);
+        const response = NextResponse.json({ user });
+        return setSessionCookie(response, token);
       } catch (e: any) {
         if (e.message?.includes('UNIQUE')) {
           return NextResponse.json({ error: 'Username or email already exists' }, { status: 409 });
@@ -35,13 +49,16 @@ export async function POST(req: NextRequest) {
       if (!user) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       }
-      await createSession(user);
-      return NextResponse.json({ user });
+      const token = await createSessionToken(user);
+      const response = NextResponse.json({ user });
+      return setSessionCookie(response, token);
     }
 
     if (action === 'logout') {
       await destroySession();
-      return NextResponse.json({ ok: true });
+      const response = NextResponse.json({ ok: true });
+      response.cookies.delete(COOKIE_NAME);
+      return response;
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });

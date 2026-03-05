@@ -91,11 +91,15 @@ export async function findOrCreateOAuthUser(
   return { id, username, email: email.toLowerCase(), display_name: displayName, bio: '', avatar_color: color, role: 'user', oauth_provider: provider, oauth_id: oauthId, created_at: new Date().toISOString() };
 }
 
-export async function createSession(user: User): Promise<string> {
-  const token = await new SignJWT({ userId: user.id, username: user.username })
+export async function createSessionToken(user: User): Promise<string> {
+  return new SignJWT({ userId: user.id, username: user.username })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('7d')
     .sign(SECRET);
+}
+
+export async function createSession(user: User): Promise<string> {
+  const token = await createSessionToken(user);
 
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
