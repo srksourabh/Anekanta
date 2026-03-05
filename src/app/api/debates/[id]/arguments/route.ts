@@ -37,8 +37,11 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const parent = await db.prepare('SELECT * FROM arguments WHERE id = ? AND debate_id = ?').get(parentId, debateId) as any;
   if (!parent) return NextResponse.json({ error: 'Parent not found' }, { status: 404 });
 
-  // Check if debate requires approval for new claims
-  const debate = await db.prepare('SELECT requires_approval, author_id FROM debates WHERE id = ?').get(debateId) as any;
+  // Check if debate is locked
+  const debate = await db.prepare('SELECT requires_approval, author_id, is_locked FROM debates WHERE id = ?').get(debateId) as any;
+  if (debate?.is_locked && user.role !== 'admin') {
+    return NextResponse.json({ error: 'This debate is locked. No new arguments can be added.' }, { status: 403 });
+  }
   const isOwner = debate && (debate.author_id === user.id);
 
   if (debate?.requires_approval && !isOwner) {

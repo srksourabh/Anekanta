@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
-import { canModerate } from '@/lib/permissions';
+import { canModerate, canReview } from '@/lib/permissions';
 import { nanoid } from 'nanoid';
 import { moderateContent } from '@/lib/moderation';
 
@@ -14,11 +14,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const db = await getDb();
   const debateId = params.id;
 
-  // Check if user is debate owner, admin, or moderator
+  // Check if user is debate owner, admin, moderator, or reviewer
   const isModerator = await canModerate(user, debateId);
+  const isReviewer = await canReview(user);
 
   let claims;
-  if (isModerator) {
+  if (isModerator || isReviewer) {
     claims = await db.prepare(`
       SELECT pc.*, u.display_name as author_name, u.avatar_color as author_color
       FROM pending_claims pc
@@ -73,9 +74,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const debateId = params.id;
   const { claimId, action } = await req.json();
 
-  // Check ownership or moderator role
+  // Check ownership, moderator, or reviewer role
   const isModerator = await canModerate(user, debateId);
-  if (!isModerator) {
+  const isReviewer = await canReview(user);
+  if (!isModerator && !isReviewer) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

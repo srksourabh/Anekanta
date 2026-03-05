@@ -2,9 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
+import { canModerate, canEdit } from '@/lib/permissions';
 import { nanoid } from 'nanoid';
 
 export const dynamic = 'force-dynamic';
+
+// PATCH: Toggle is_hidden (moderator action)
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const db = await getDb();
+  const argumentId = params.id;
+  const { is_hidden } = await req.json();
+
+  const argument = await db.prepare('SELECT * FROM arguments WHERE id = ?').get(argumentId) as any;
+  if (!argument) return NextResponse.json({ error: 'Argument not found' }, { status: 404 });
+
+  const isModerator = await canModerate(user, argument.debate_id);
+  if (!isModerator) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+  await db.prepare('UPDATE arguments SET is_hidden = ? WHERE id = ?').run(is_hidden ? 1 : 0, argumentId);
+  return NextResponse.json({ success: true, is_hidden: is_hidden ? 1 : 0 });
+}
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();
@@ -21,8 +41,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const argument = await db.prepare('SELECT * FROM arguments WHERE id = ?').get(argumentId) as any;
   if (!argument) return NextResponse.json({ error: 'Argument not found' }, { status: 404 });
 
-  // Check author or admin
-  if (argument.author_id !== user.id && user.role !== 'admin') {
+  // Check author, admin, or editor role
+  const isEditor = await canEdit(user, argument.debate_id);
+  if (argument.author_id !== user.id && user.role !== 'admin' && !isEditor) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -33,10 +54,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   // Log edit to claim_edits table
+  const editType = (argument.author_id !== user.id && isEditor) ? 'editorial_edit' : 'edit';
   await db.prepare(`
     INSERT INTO claim_edits (id, argument_id, author_id, old_content, new_content, edit_type, created_at)
-    VALUES (?, ?, ?, ?, ?, 'edit', datetime('now'))
-  `).run(nanoid(), argumentId, user.id, argument.content, content);
+    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+  `).run(nanoid(), argumentId, user.id, argument.content, content, editType);
 
   // Update argument
   await db.prepare('UPDATE arguments SET content = ?, updated_at = datetime(\'now\') WHERE id = ?')
@@ -66,8 +88,9 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: 'Cannot delete thesis argument' }, { status: 400 });
   }
 
-  // Check author or admin
-  if (argument.author_id !== user.id && user.role !== 'admin') {
+  // Check author, admin, or moderator
+  const isMod = await canModerate(user, argument.debate_id);
+  if (argument.author_id !== user.id && user.role !== 'admin' && !isMod) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

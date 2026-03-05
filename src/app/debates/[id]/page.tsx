@@ -44,7 +44,7 @@ export default function DebatePage() {
   const [showGuidedVoting, setShowGuidedVoting] = useState(false);
   const [showPendingClaims, setShowPendingClaims] = useState(false);
   const [sidePanelArg, setSidePanelArg] = useState<string | null>(null);
-  const [sidePanelTab, setSidePanelTab] = useState<'comments' | 'history' | 'sources' | 'stats'>('comments');
+  const [sidePanelTab, setSidePanelTab] = useState<'comments' | 'history' | 'sources' | 'stats' | 'resources'>('comments');
   const [showEditDebate, setShowEditDebate] = useState(false);
   const [showDebateMenu, setShowDebateMenu] = useState(false);
   const [showRoles, setShowRoles] = useState(false);
@@ -55,6 +55,7 @@ export default function DebatePage() {
   const [showSummary, setShowSummary] = useState(false);
   const [impactScores, setImpactScores] = useState<Record<string, number>>({});
   const [creatingJournal, setCreatingJournal] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
 
   // URL-as-state: current path through the argument tree
   const [currentPath, setCurrentPath] = useState<string[]>([]);
@@ -95,7 +96,21 @@ export default function DebatePage() {
 
   useEffect(() => {
     loadDebate();
-    fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(setUser).catch(() => {});
+    fetch('/api/auth/me').then(r => r.ok ? r.json() : null).then(u => {
+      setUser(u);
+      if (u) {
+        fetch(`/api/debates/${debateId}/settings`).then(r => r.ok ? r.json() : null).then(d => {
+          if (d?.settings) {
+            // Check if user is moderator for this debate
+            fetch(`/api/debates/${debateId}/roles`).then(r => r.ok ? r.json() : null).then(roles => {
+              const isMod = u.role === 'admin' ||
+                (roles?.moderators || []).some((m: any) => m.user_id === u.id);
+              setIsModerator(isMod);
+            }).catch(() => {});
+          }
+        }).catch(() => {});
+      }
+    }).catch(() => {});
     fetch(`/api/debates/${debateId}/tags`).then(r => r.ok ? r.json() : { tags: [] }).then(d => setTags(d.tags || [])).catch(() => {});
     fetch(`/api/debates/${debateId}/impact`).then(r => r.ok ? r.json() : null).then(d => {
       if (d?.impacts) {
@@ -138,7 +153,7 @@ export default function DebatePage() {
     }
   };
 
-  const handleOpenPanel = useCallback((argId: string, tab: 'comments' | 'history' | 'sources' | 'stats') => {
+  const handleOpenPanel = useCallback((argId: string, tab: 'comments' | 'history' | 'sources' | 'stats' | 'resources') => {
     setSidePanelArg(argId);
     setSidePanelTab(tab);
   }, []);
@@ -319,6 +334,22 @@ export default function DebatePage() {
               {t('suggestions_pending')}
             </button>
           )}
+          {user && isModerator && (
+            <button
+              onClick={async () => {
+                const newLocked = !debate.is_locked;
+                const res = await fetch(`/api/debates/${debateId}/settings`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ is_locked: newLocked }),
+                });
+                if (res.ok) await loadDebate();
+              }}
+              className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${debate.is_locked ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+            >
+              {debate.is_locked ? t('debate_unlock') : t('debate_lock')}
+            </button>
+          )}
           {user && (debate.author_id === user.id || user.role === 'admin') && (
             <>
               <button onClick={() => setShowRoles(true)} className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors">
@@ -392,6 +423,8 @@ export default function DebatePage() {
               currentUserRole={user?.role}
               sortBy={sortBy}
               impactScores={impactScores}
+              isModerator={isModerator}
+              isLocked={!!debate.is_locked}
             />
           ) : (
             <p className="text-stone-400">{t('no_thesis_found')}</p>

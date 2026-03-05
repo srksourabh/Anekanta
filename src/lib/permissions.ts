@@ -18,6 +18,7 @@ export async function hasDebateRole(userId: string, debateId: string, role: 'mod
  */
 export async function canModerate(user: User, debateId: string): Promise<boolean> {
   if (user.role === 'admin') return true;
+  if (await hasGlobalRole(user.id, 'moderator')) return true;
   const db = await getDb();
   const debate = await db.prepare('SELECT author_id FROM debates WHERE id = ?').get(debateId) as any;
   if (debate?.author_id === user.id) return true;
@@ -29,6 +30,7 @@ export async function canModerate(user: User, debateId: string): Promise<boolean
  */
 export async function canEdit(user: User, debateId: string): Promise<boolean> {
   if (user.role === 'admin') return true;
+  if (await hasGlobalRole(user.id, 'editor')) return true;
   const db = await getDb();
   const debate = await db.prepare('SELECT author_id FROM debates WHERE id = ?').get(debateId) as any;
   if (debate?.author_id === user.id) return true;
@@ -121,4 +123,20 @@ export async function isGlobalEditor(userId: string): Promise<boolean> {
  */
 export async function isGlobalReviewer(userId: string): Promise<boolean> {
   return hasGlobalRole(userId, 'reviewer');
+}
+
+/**
+ * Check if user can review (approve journals, pending claims).
+ * Admin, global reviewer, or global moderator can review.
+ */
+export async function canReview(user: User): Promise<boolean> {
+  if (user.role === 'admin') return true;
+  return hasGlobalRole(user.id, 'reviewer');
+}
+
+/**
+ * Check if user is a global moderator (not debate-specific).
+ */
+export async function isGlobalModerator(userId: string): Promise<boolean> {
+  return hasGlobalRole(userId, 'moderator');
 }

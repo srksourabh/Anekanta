@@ -93,7 +93,6 @@ export function Navbar() {
               <NavLink href="/debates">{t('nav_debates')}</NavLink>
               <NavLink href="/debates/new">{t('nav_new_debate')}</NavLink>
               <NavLink href="/community">{t('nav_community')}</NavLink>
-              <NavLink href="/articles">{t('nav_articles')}</NavLink>
               <NavLink href="/journals">{t('nav_journals')}</NavLink>
               {user?.role === 'admin' && (
                 <NavLink href="/admin">{t('nav_admin')}</NavLink>
@@ -253,7 +252,6 @@ export function Navbar() {
             <MobileNavLink href="/debates" onClick={() => setMobileOpen(false)}>{t('nav_debates')}</MobileNavLink>
             <MobileNavLink href="/debates/new" onClick={() => setMobileOpen(false)}>{t('nav_new_debate')}</MobileNavLink>
             <MobileNavLink href="/community" onClick={() => setMobileOpen(false)}>{t('nav_community')}</MobileNavLink>
-            <MobileNavLink href="/articles" onClick={() => setMobileOpen(false)}>{t('nav_articles')}</MobileNavLink>
             <MobileNavLink href="/journals" onClick={() => setMobileOpen(false)}>{t('nav_journals')}</MobileNavLink>
             {user?.role === 'admin' && (
               <MobileNavLink href="/admin" onClick={() => setMobileOpen(false)}>{t('nav_admin')}</MobileNavLink>

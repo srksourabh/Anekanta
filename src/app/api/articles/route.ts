@@ -40,6 +40,12 @@ export async function GET(req: NextRequest) {
     params.push(statusParam);
   }
 
+  const argumentIdFilter = url.searchParams.get('argument_id');
+  if (argumentIdFilter) {
+    where += ' AND a.argument_id = ?';
+    params.push(argumentIdFilter);
+  }
+
   if (search) {
     where += ' AND (a.title LIKE ? OR a.summary LIKE ? OR a.content LIKE ?)';
     params.push(`%${search}%`, `%${search}%`, `%${search}%`);
@@ -72,7 +78,7 @@ export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Login required' }, { status: 401 });
 
-  const { title, content, summary, category, status, cover_image_url } = await req.json();
+  const { title, content, summary, category, status, cover_image_url, debate_id, argument_id } = await req.json();
   if (!title || !content) {
     return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
   }
@@ -82,9 +88,9 @@ export async function POST(req: NextRequest) {
   const readTime = Math.ceil(content.split(/\s+/).length / 200);
 
   await db.prepare(`
-    INSERT INTO articles (id, title, content, summary, author_id, category, status, cover_image_url, read_time_minutes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(id, title, content, summary || '', user.id, category || 'general', status || 'published', cover_image_url || '', readTime);
+    INSERT INTO articles (id, title, content, summary, author_id, category, status, cover_image_url, read_time_minutes, debate_id, argument_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(id, title, content, summary || '', user.id, category || 'general', status || 'published', cover_image_url || '', readTime, debate_id || null, argument_id || null);
 
   const article = await db.prepare(`
     SELECT a.*, u.display_name as author_name, u.avatar_color as author_color

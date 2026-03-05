@@ -19,8 +19,11 @@ interface ClaimCardProps {
   onDelete?: (argId: string) => Promise<void>;
   onAddArgument?: (parentId: string, content: string, type: 'pro' | 'con') => Promise<void>;
   onRefresh?: () => Promise<void>;
+  onOpenPanel?: (argId: string, tab: 'comments' | 'history' | 'sources' | 'stats' | 'resources') => void;
+  onToggleHidden?: (argId: string, hidden: boolean) => Promise<void>;
   isLoggedIn: boolean;
   canModify: boolean;
+  isModerator?: boolean;
   impactScore?: number;
   impactScores?: Record<string, number>;
   currentUserId?: string | null;
@@ -32,8 +35,9 @@ interface ClaimCardProps {
 
 export function ClaimCard({
   arg, debateId, onDrillDown, onVote, onEdit, onDelete,
-  onAddArgument, onRefresh,
-  isLoggedIn, canModify, impactScore, impactScores,
+  onAddArgument, onRefresh, onOpenPanel, onToggleHidden,
+  isLoggedIn, canModify, isModerator,
+  impactScore, impactScores,
   currentUserId, currentUserRole,
   depth = 0, maxInlineDepth = 3, sortBy = 'votes',
 }: ClaimCardProps) {
@@ -54,6 +58,7 @@ export function ClaimCard({
   const perspective = arg.perspective;
   const isPinned = arg.is_pinned === 1;
   const isHighlighted = arg.is_highlighted === 1;
+  const isHidden = arg.is_hidden === 1;
   const canExpandInline = depth < maxInlineDepth && hasChildren;
 
   const handleSaveEdit = async () => {
@@ -75,6 +80,16 @@ export function ClaimCard({
         role="button"
         tabIndex={0}
       >
+        {/* Hidden indicator (only visible to moderators) */}
+        {isHidden && (
+          <div className="flex items-center gap-1 text-[10px] text-amber-600 font-medium mb-1.5 bg-amber-50 px-2 py-1 rounded">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+            </svg>
+            {t('mod_hidden_by_moderator')}
+          </div>
+        )}
+
         {/* Pinned indicator */}
         {isPinned && (
           <div className="flex items-center gap-1 text-[10px] text-teal-600 font-medium mb-1.5">
@@ -117,7 +132,7 @@ export function ClaimCard({
                 {showMenu && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setShowMenu(false); }} />
-                    <div className="absolute right-0 mt-1 w-28 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20">
+                    <div className="absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-stone-200 py-1 z-20">
                       <button
                         onClick={(e) => { e.stopPropagation(); setEditMode(true); setShowMenu(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-stone-700 hover:bg-stone-50"
@@ -126,19 +141,28 @@ export function ClaimCard({
                         onClick={(e) => { e.stopPropagation(); handleDelete(); setShowMenu(false); }}
                         className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
                       >Delete</button>
+                      {isModerator && onToggleHidden && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleHidden(arg.id, !isHidden); setShowMenu(false); }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-amber-700 hover:bg-amber-50"
+                        >{isHidden ? t('mod_unhide') : t('mod_hide')}</button>
+                      )}
                     </div>
                   </>
                 )}
               </div>
             )}
-            <button
-              onClick={(e) => { e.stopPropagation(); }}
-              className="p-1 text-stone-400 hover:text-stone-600"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-            </button>
+            {onOpenPanel && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onOpenPanel(arg.id, 'resources'); }}
+                className="p-1 text-stone-400 hover:text-teal-600 transition-colors"
+                title={t('learn_more')}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </button>
+            )}
             {/* Blue dot indicator when has children */}
             {hasChildren && (
               <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${

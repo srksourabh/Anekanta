@@ -7,6 +7,7 @@ export interface Debate {
   category: string;
   status: string;
   is_anonymous?: boolean;
+  is_locked?: number;
   tagline?: string;
   conclusion?: string;
   created_at: string;
@@ -31,6 +32,7 @@ export interface Argument {
   origin?: 'direct' | 'comment_branch';
   is_pinned?: number;
   is_highlighted?: number;
+  is_hidden?: number;
   created_at: string;
   author_name?: string;
   author_color?: string;
@@ -104,6 +106,8 @@ export interface Article {
   status: 'draft' | 'published' | 'archived';
   cover_image_url?: string;
   read_time_minutes: number;
+  debate_id?: string | null;
+  argument_id?: string | null;
   created_at: string;
   updated_at: string;
   author_name?: string;

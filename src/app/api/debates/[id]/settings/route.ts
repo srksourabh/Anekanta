@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { canModerate } from '@/lib/permissions';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const debate = await db.prepare(`
     SELECT requires_approval, anonymous_mode, who_can_post,
-           max_argument_depth, argument_time_limit, max_arguments_per_user
+           max_argument_depth, argument_time_limit, max_arguments_per_user, is_locked
     FROM debates WHERE id = ?
   `).get(debateId) as any;
 
@@ -27,11 +28,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const db = await getDb();
   const debateId = params.id;
 
-  // Only owner or admin can change settings
+  // Owner, admin, or moderator can change settings
   const debate = await db.prepare('SELECT author_id FROM debates WHERE id = ?').get(debateId) as any;
   if (!debate) return NextResponse.json({ error: 'Debate not found' }, { status: 404 });
-  if (debate.author_id !== user.id && user.role !== 'admin') {
-    return NextResponse.json({ error: 'Only the debate creator can change settings' }, { status: 403 });
+  const isModerator = await canModerate(user, debateId);
+  if (debate.author_id !== user.id && user.role !== 'admin' && !isModerator) {
+    return NextResponse.json({ error: 'Only the debate creator or moderator can change settings' }, { status: 403 });
   }
 
   const body = await req.json();
@@ -61,6 +63,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (body.max_arguments_per_user !== undefined) {
     updates.push('max_arguments_per_user = ?');
     values.push(body.max_arguments_per_user || null);
+  }
+  if (body.is_locked !== undefined) {
+    updates.push('is_locked = ?');
+    values.push(body.is_locked ? 1 : 0);
   }
 
   if (updates.length === 0) {

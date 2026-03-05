@@ -17,18 +17,21 @@ interface DualColumnTreeProps {
   onAddArgument: (parentId: string, content: string, type: 'pro' | 'con') => Promise<void>;
   onVote: (argId: string, value: number) => Promise<void>;
   onRefresh: () => Promise<void>;
-  onOpenPanel?: (argId: string, panel: 'comments' | 'history' | 'sources' | 'stats') => void;
+  onOpenPanel?: (argId: string, panel: 'comments' | 'history' | 'sources' | 'stats' | 'resources') => void;
   isLoggedIn: boolean;
   currentUserId?: string | null;
   currentUserRole?: string | null;
   sortBy: 'votes' | 'recent';
   impactScores?: Record<string, number>;
+  isModerator?: boolean;
+  isLocked?: boolean;
 }
 
 export function DualColumnTree({
   thesis, debateId, currentPath, onNavigate,
   onAddArgument, onVote, onRefresh, onOpenPanel,
-  isLoggedIn, currentUserId, currentUserRole, sortBy, impactScores
+  isLoggedIn, currentUserId, currentUserRole, sortBy, impactScores,
+  isModerator, isLocked,
 }: DualColumnTreeProps) {
   const { t } = useLanguage();
   const [showAddForm, setShowAddForm] = useState<'pro' | 'con' | null>(null);
@@ -44,8 +47,14 @@ export function DualColumnTree({
   }, [thesis, focusedNode.id]);
 
   const { pros, cons } = useMemo(() => {
-    return getProConChildren(focusedNode, sortBy);
-  }, [focusedNode, sortBy]);
+    const { pros: allPros, cons: allCons } = getProConChildren(focusedNode, sortBy);
+    // Filter hidden arguments for regular users (moderators can see them)
+    if (isModerator) return { pros: allPros, cons: allCons };
+    return {
+      pros: allPros.filter(a => !a.is_hidden),
+      cons: allCons.filter(a => !a.is_hidden),
+    };
+  }, [focusedNode, sortBy, isModerator]);
 
   const isRoot = focusedNode.id === thesis.id;
 
@@ -77,7 +86,16 @@ export function DualColumnTree({
   };
 
   const canModify = (arg: Argument) =>
-    !!currentUserId && (currentUserId === arg.author_id || currentUserRole === 'admin');
+    !!currentUserId && (currentUserId === arg.author_id || currentUserRole === 'admin' || !!isModerator);
+
+  const handleToggleHidden = async (argId: string, hidden: boolean) => {
+    await fetch(`/api/arguments/${argId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_hidden: hidden }),
+    });
+    await onRefresh();
+  };
 
   const handleSubmitNew = async (type: 'pro' | 'con') => {
     if (!newContent.trim() || newContent.length > 500) return;
@@ -92,6 +110,16 @@ export function DualColumnTree({
 
   return (
     <div>
+      {/* Locked debate banner */}
+      {isLocked && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800 flex items-center gap-2">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          {t('debate_locked')}
+        </div>
+      )}
+
       {/* Mini tree map */}
       <MiniTreeMap
         thesis={thesis}
@@ -220,7 +248,7 @@ export function DualColumnTree({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div className="flex items-center justify-center gap-3 bg-white border border-stone-200 rounded-xl py-3 px-4">
           <span className="text-sm font-semibold text-green-700">{t('view_pro_arguments')}</span>
-          {isLoggedIn && (
+          {isLoggedIn && !isLocked && (
             <button
               onClick={() => { setShowAddForm(showAddForm === 'pro' ? null : 'pro'); }}
               className="w-8 h-8 rounded-lg bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors shadow-sm"
@@ -234,7 +262,7 @@ export function DualColumnTree({
         </div>
         <div className="flex items-center justify-center gap-3 bg-white border border-stone-200 rounded-xl py-3 px-4">
           <span className="text-sm font-semibold text-red-700">{t('view_con_arguments')}</span>
-          {isLoggedIn && (
+          {isLoggedIn && !isLocked && (
             <button
               onClick={() => { setShowAddForm(showAddForm === 'con' ? null : 'con'); }}
               className="w-8 h-8 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm"
@@ -307,8 +335,11 @@ export function DualColumnTree({
                 onDelete={handleDelete}
                 onAddArgument={onAddArgument}
                 onRefresh={onRefresh}
+                onOpenPanel={onOpenPanel}
+                onToggleHidden={isModerator ? handleToggleHidden : undefined}
                 isLoggedIn={isLoggedIn}
                 canModify={canModify(arg)}
+                isModerator={isModerator}
                 impactScore={impactScores?.[arg.id]}
                 impactScores={impactScores}
                 currentUserId={currentUserId}
@@ -338,8 +369,11 @@ export function DualColumnTree({
                 onDelete={handleDelete}
                 onAddArgument={onAddArgument}
                 onRefresh={onRefresh}
+                onOpenPanel={onOpenPanel}
+                onToggleHidden={isModerator ? handleToggleHidden : undefined}
                 isLoggedIn={isLoggedIn}
                 canModify={canModify(arg)}
+                isModerator={isModerator}
                 impactScore={impactScores?.[arg.id]}
                 impactScores={impactScores}
                 currentUserId={currentUserId}

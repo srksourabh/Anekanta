@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { CommentSection } from './CommentSection';
 import { useLanguage } from '@/components/LanguageProvider';
 
-type PanelTab = 'comments' | 'history' | 'sources' | 'stats';
+type PanelTab = 'comments' | 'history' | 'sources' | 'stats' | 'resources';
 
 interface ClaimSidePanelProps {
   argumentId: string;
@@ -24,6 +24,7 @@ export function ClaimSidePanel({ argumentId, debateId, isLoggedIn, initialTab = 
     { key: 'history', label: t('panel_history'), icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
     { key: 'sources', label: t('panel_sources'), icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
     { key: 'stats', label: t('panel_vote_stats'), icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+    { key: 'resources', label: t('panel_resources'), icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
   ];
 
   return (
@@ -71,6 +72,9 @@ export function ClaimSidePanel({ argumentId, debateId, isLoggedIn, initialTab = 
         )}
         {activeTab === 'stats' && (
           <VoteStatsTab argumentId={argumentId} />
+        )}
+        {activeTab === 'resources' && (
+          <ResourcesTab argumentId={argumentId} isLoggedIn={isLoggedIn} />
         )}
       </div>
 
@@ -177,6 +181,120 @@ function SourcesTab({ argumentId, debateId }: { argumentId: string; debateId: st
               <p className="text-xs text-stone-500 italic mt-1">&ldquo;{source.quote}&rdquo;</p>
             )}
           </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+function ResourcesTab({ argumentId, isLoggedIn }: { argumentId: string; isLoggedIn: boolean }) {
+  const { t } = useLanguage();
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [summary, setSummary] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadArticles = () => {
+    fetch(`/api/arguments/${argumentId}/articles`)
+      .then(r => r.ok ? r.json() : { articles: [] })
+      .then(data => setArticles(data.articles || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadArticles(); }, [argumentId]);
+
+  const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) return;
+    setSubmitting(true);
+    const res = await fetch(`/api/arguments/${argumentId}/articles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title.trim(), content: content.trim(), summary: summary.trim() }),
+    });
+    if (res.ok) {
+      setTitle('');
+      setContent('');
+      setSummary('');
+      setShowForm(false);
+      loadArticles();
+    }
+    setSubmitting(false);
+  };
+
+  if (loading) return <div className="text-sm text-stone-400 py-4 text-center">Loading...</div>;
+
+  return (
+    <div className="space-y-3">
+      {isLoggedIn && (
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="w-full text-sm text-teal-600 hover:text-teal-700 border border-dashed border-teal-300 rounded-lg py-2 hover:bg-teal-50 transition-colors"
+        >
+          + {t('resource_add')}
+        </button>
+      )}
+
+      {showForm && (
+        <div className="space-y-2 p-3 bg-stone-50 rounded-lg border border-stone-200">
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder={t('article_form_title')}
+            className="input-field text-sm"
+          />
+          <textarea
+            value={summary}
+            onChange={e => setSummary(e.target.value)}
+            placeholder={t('article_form_summary')}
+            className="input-field text-sm"
+            rows={2}
+          />
+          <textarea
+            value={content}
+            onChange={e => setContent(e.target.value)}
+            placeholder={t('article_form_content')}
+            className="input-field text-sm"
+            rows={4}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !title.trim() || !content.trim()}
+              className="btn-primary text-xs px-3 py-1.5"
+            >
+              {submitting ? '...' : t('article_form_submit')}
+            </button>
+            <button onClick={() => setShowForm(false)} className="text-xs text-stone-500">
+              {t('debate_cancel')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {articles.length === 0 && !showForm ? (
+        <p className="text-sm text-stone-400 text-center py-4">{t('resource_none')}</p>
+      ) : (
+        articles.map((article: any) => (
+          <a
+            key={article.id}
+            href={`/articles/${article.id}`}
+            className="block card p-3 border-l-2 border-teal-300 hover:shadow-md transition-shadow"
+          >
+            <h4 className="text-sm font-medium text-stone-800">{article.title}</h4>
+            {article.summary && (
+              <p className="text-xs text-stone-500 mt-1 line-clamp-2">{article.summary}</p>
+            )}
+            <div className="flex items-center gap-2 mt-2 text-[10px] text-stone-400">
+              <span>{article.author_name}</span>
+              <span>&middot;</span>
+              <span>{article.read_time_minutes} {t('articles_read_time')}</span>
+            </div>
+          </a>
         ))
       )}
     </div>

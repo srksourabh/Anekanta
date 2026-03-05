@@ -523,6 +523,19 @@ export const translations = {
     notification_added_argument: 'added an argument',
     notification_commented: 'commented',
     notification_in: 'in',
+
+    // Resources & Moderation
+    panel_resources: 'Resources',
+    resource_add: 'Add Resource',
+    resource_none: 'No resources linked yet.',
+    learn_more: 'Learn More',
+    mod_hide: 'Hide',
+    mod_unhide: 'Unhide',
+    mod_hidden_by_moderator: 'Hidden by moderator',
+    debate_locked: 'This debate is locked. No new arguments can be added.',
+    debate_lock: 'Lock Debate',
+    debate_unlock: 'Unlock Debate',
+    guided_voting_title: 'Guided Voting',
   },
 
   bn: {
@@ -1014,6 +1027,19 @@ export const translations = {
     notification_added_argument: 'একটি যুক্তি যোগ করেছেন',
     notification_commented: 'মন্তব্য করেছেন',
     notification_in: 'তে',
+
+    // Resources & Moderation
+    panel_resources: 'সম্পদ',
+    resource_add: 'সম্পদ যোগ করুন',
+    resource_none: 'এখনও কোনো সম্পদ সংযুক্ত নেই।',
+    learn_more: 'আরো জানুন',
+    mod_hide: 'লুকান',
+    mod_unhide: 'দেখান',
+    mod_hidden_by_moderator: 'মডারেটর দ্বারা লুকানো',
+    debate_locked: 'এই বিতর্ক লক করা আছে। নতুন যুক্তি যোগ করা যাবে না।',
+    debate_lock: 'বিতর্ক লক করুন',
+    debate_unlock: 'বিতর্ক আনলক করুন',
+    guided_voting_title: 'নির্দেশিত ভোটদান',
   },
 } as const;
 

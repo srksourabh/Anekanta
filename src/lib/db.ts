@@ -206,6 +206,8 @@ async function initializeSchema(database: CompatDb) {
     `CREATE INDEX IF NOT EXISTS idx_journals_editor ON journals(editor_id)`,
     `CREATE INDEX IF NOT EXISTS idx_journals_status ON journals(status)`,
     `CREATE INDEX IF NOT EXISTS idx_journal_sections_journal ON journal_sections(journal_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_articles_debate_id ON articles(debate_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_articles_argument_id ON articles(argument_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at)`,
     `CREATE INDEX IF NOT EXISTS idx_notifications_debate ON notifications(debate_id)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL`,
@@ -224,6 +226,10 @@ async function initializeSchema(database: CompatDb) {
     `ALTER TABLE arguments ADD COLUMN is_highlighted INTEGER DEFAULT 0`,
     `ALTER TABLE arguments ADD COLUMN perspective TEXT DEFAULT ''`,
     `ALTER TABLE arguments ADD COLUMN origin TEXT DEFAULT 'direct'`,
+    `ALTER TABLE articles ADD COLUMN debate_id TEXT DEFAULT NULL`,
+    `ALTER TABLE articles ADD COLUMN argument_id TEXT DEFAULT NULL`,
+    `ALTER TABLE debates ADD COLUMN is_locked INTEGER DEFAULT 0`,
+    `ALTER TABLE arguments ADD COLUMN is_hidden INTEGER DEFAULT 0`,
   ];
   for (const m of migrations) {
     try { await database.exec(m); } catch {}
