@@ -180,7 +180,7 @@ export default function AdminPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-earth-200">
-                    <th className="text-left py-3 px-3 text-earth-600 font-medium">{t('display_name')}</th>
+                    <th className="text-left py-3 px-3 text-earth-600 font-medium">{t('auth_display_name')}</th>
                     {GLOBAL_ROLES.map(role => (
                       <th key={role} className="text-center py-3 px-3 text-earth-600 font-medium">
                         {t(`role_global_${role}` as any)}
