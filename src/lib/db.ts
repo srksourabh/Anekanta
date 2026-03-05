@@ -206,8 +206,6 @@ async function initializeSchema(database: CompatDb) {
     `CREATE INDEX IF NOT EXISTS idx_journals_editor ON journals(editor_id)`,
     `CREATE INDEX IF NOT EXISTS idx_journals_status ON journals(status)`,
     `CREATE INDEX IF NOT EXISTS idx_journal_sections_journal ON journal_sections(journal_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_articles_debate_id ON articles(debate_id)`,
-    `CREATE INDEX IF NOT EXISTS idx_articles_argument_id ON articles(argument_id)`,
     `CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at)`,
     `CREATE INDEX IF NOT EXISTS idx_notifications_debate ON notifications(debate_id)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL`,
@@ -233,5 +231,14 @@ async function initializeSchema(database: CompatDb) {
   ];
   for (const m of migrations) {
     try { await database.exec(m); } catch {}
+  }
+
+  // Post-migration indexes (depend on columns added above)
+  const postMigrationIndexes = [
+    `CREATE INDEX IF NOT EXISTS idx_articles_debate_id ON articles(debate_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_articles_argument_id ON articles(argument_id)`,
+  ];
+  for (const idx of postMigrationIndexes) {
+    try { await database.exec(idx); } catch {}
   }
 }
