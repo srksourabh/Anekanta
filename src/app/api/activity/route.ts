@@ -34,5 +34,7 @@ export async function GET(req: NextRequest) {
   }
 
   const activities = await db.prepare(query).all(...params);
-  return NextResponse.json(activities);
+  return NextResponse.json(activities, {
+    headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30' },
+  });
 }

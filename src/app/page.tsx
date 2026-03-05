@@ -1,16 +1,20 @@
 import { getDb } from '@/lib/db';
 import { HomeContent } from '@/components/HomeContent';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 30; // cache for 30 seconds
 
 export default async function Home() {
   const db = await getDb();
 
+  // Single query with LEFT JOINs instead of N+1 subqueries
   const featured = await db.prepare(`
     SELECT d.*, u.display_name as author_name, u.avatar_color as author_color,
-      (SELECT COUNT(*) FROM arguments WHERE debate_id = d.id) as argument_count,
-      (SELECT COUNT(*) FROM votes v JOIN arguments a ON v.argument_id = a.id WHERE a.debate_id = d.id) as vote_count
-    FROM debates d JOIN users u ON d.author_id = u.id
+      COALESCE(ac.cnt, 0) as argument_count,
+      COALESCE(vc.cnt, 0) as vote_count
+    FROM debates d
+    JOIN users u ON d.author_id = u.id
+    LEFT JOIN (SELECT debate_id, COUNT(*) as cnt FROM arguments GROUP BY debate_id) ac ON ac.debate_id = d.id
+    LEFT JOIN (SELECT a.debate_id, COUNT(*) as cnt FROM votes v JOIN arguments a ON v.argument_id = a.id GROUP BY a.debate_id) vc ON vc.debate_id = d.id
     WHERE d.status = 'active'
     ORDER BY d.updated_at DESC LIMIT 6
   `).all();

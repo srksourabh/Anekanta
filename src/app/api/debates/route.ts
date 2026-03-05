@@ -35,10 +35,12 @@ export async function GET(req: NextRequest) {
 
   const debates = await db.prepare(`
     SELECT d.*, u.display_name as author_name, u.avatar_color as author_color,
-      (SELECT COUNT(*) FROM arguments WHERE debate_id = d.id) as argument_count,
-      (SELECT COUNT(*) FROM votes v JOIN arguments a ON v.argument_id = a.id WHERE a.debate_id = d.id) as vote_count
+      COALESCE(ac.cnt, 0) as argument_count,
+      COALESCE(vc.cnt, 0) as vote_count
     FROM debates d
     JOIN users u ON d.author_id = u.id
+    LEFT JOIN (SELECT debate_id, COUNT(*) as cnt FROM arguments GROUP BY debate_id) ac ON ac.debate_id = d.id
+    LEFT JOIN (SELECT a.debate_id, COUNT(*) as cnt FROM votes v JOIN arguments a ON v.argument_id = a.id GROUP BY a.debate_id) vc ON vc.debate_id = d.id
     ${where}
     ${orderBy}
     LIMIT ? OFFSET ?
@@ -46,7 +48,10 @@ export async function GET(req: NextRequest) {
 
   const total = await db.prepare(`SELECT COUNT(*) as count FROM debates d ${where}`).get(...params) as any;
 
-  return NextResponse.json({ debates, total: total.count, page, pages: Math.ceil(total.count / limit) });
+  return NextResponse.json(
+    { debates, total: total.count, page, pages: Math.ceil(total.count / limit) },
+    { headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30' } },
+  );
 }
 
 export async function POST(req: NextRequest) {
