@@ -17,7 +17,7 @@ export function ImpactBreakdown({ impact }: ImpactBreakdownProps) {
 
   const factors = [
     { label: t('impact_vote_weight'), value: impact.voteWeight, max: 40, color: '#0d9488' },
-    { label: t('impact_response_depth'), value: impact.responseDepth, max: 20, color: '#c47a2e' },
+    { label: t('impact_response_depth'), value: impact.responseDepth, max: 20, color: '#0d9488' },
     { label: t('impact_engagement'), value: impact.engagement, max: 20, color: '#6366f1' },
     { label: t('impact_descendants'), value: impact.descendants, max: 20, color: '#ec4899' },
   ];

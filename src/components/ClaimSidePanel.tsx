@@ -46,7 +46,7 @@ export function ClaimSidePanel({ argumentId, debateId, isLoggedIn, initialTab = 
               onClick={() => setActiveTab(tab.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors
                 ${activeTab === tab.key
-                  ? 'text-saffron-600 border-b-2 border-saffron-500'
+                  ? 'text-teal-600 border-b-2 border-teal-500'
                   : 'text-stone-500 hover:text-stone-700'}`}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,9 +101,9 @@ function EditHistoryTab({ argumentId }: { argumentId: string }) {
     <div className="space-y-4">
       {/* Creation event */}
       {history.created && (
-        <div className="border-l-2 border-earth-300 pl-3">
+        <div className="border-l-2 border-stone-300 pl-3">
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge bg-earth-100 text-earth-700 text-[10px]">Created</span>
+            <span className="badge bg-stone-100 text-stone-700 text-[10px]">Created</span>
             <span className="text-xs text-stone-500">
               {history.created.author_name}
               {history.created.created_at && (
@@ -116,9 +116,9 @@ function EditHistoryTab({ argumentId }: { argumentId: string }) {
 
       {/* Edit events */}
       {(history.edits || []).map((edit: any) => (
-        <div key={edit.id} className="border-l-2 border-saffron-300 pl-3">
+        <div key={edit.id} className="border-l-2 border-teal-300 pl-3">
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge bg-saffron-100 text-saffron-700 text-[10px]">Edited</span>
+            <span className="badge bg-teal-100 text-teal-700 text-[10px]">Edited</span>
             <span className="text-xs text-stone-500">
               {edit.author_name}
               {edit.created_at && (
@@ -164,12 +164,12 @@ function SourcesTab({ argumentId, debateId }: { argumentId: string; debateId: st
         <p className="text-sm text-stone-400 text-center py-4">No sources cited for this claim</p>
       ) : (
         sources.map((source: any) => (
-          <div key={source.id} className="card p-3 border-l-2 border-earth-300">
+          <div key={source.id} className="card p-3 border-l-2 border-stone-300">
             <a
               href={source.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-saffron-600 hover:text-saffron-700 break-all"
+              className="text-sm text-teal-600 hover:text-teal-700 break-all"
             >
               {source.url}
             </a>
@@ -215,7 +215,7 @@ function VoteStatsTab({ argumentId }: { argumentId: string }) {
             <span className="text-xs text-stone-500 w-16 text-right">{labels[idx]}</span>
             <div className="flex-1 h-6 bg-stone-100 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full transition-all bg-saffron-500"
+                className="h-full rounded-full transition-all bg-teal-500"
                 style={{ width: `${(count / maxCount) * 100}%` }}
               />
             </div>

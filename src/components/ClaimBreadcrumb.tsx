@@ -18,7 +18,7 @@ export function ClaimBreadcrumb({ ancestors, onNavigate }: ClaimBreadcrumbProps)
         const typeColor =
           node.type === 'pro' ? 'text-green-600' :
           node.type === 'con' ? 'text-red-600' :
-          'text-earth-600';
+          'text-teal-600';
 
         return (
           <span key={node.id} className="flex items-center">

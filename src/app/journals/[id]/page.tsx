@@ -99,7 +99,7 @@ export default function JournalViewPage() {
           {isEditor && journal.status === 'draft' && (
             <Link
               href={`/journals/${journalId}/edit`}
-              className="text-sm text-saffron-600 hover:text-saffron-700 font-medium"
+              className="text-sm text-teal-600 hover:text-teal-700 font-medium"
             >
               {t('journal_edit')}
             </Link>
@@ -108,7 +108,7 @@ export default function JournalViewPage() {
         <h1 className="text-3xl md:text-4xl font-heading font-bold text-stone-800 mb-4">{journal.title}</h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">
           <span>
-            {t('journal_editor')}: <span className="font-medium" style={{ color: journal.editor_color || '#a97847' }}>{journal.editor_name}</span>
+            {t('journal_editor')}: <span className="font-medium" style={{ color: journal.editor_color || '#0f766e' }}>{journal.editor_name}</span>
           </span>
           <Link href={`/debates/${journal.debate_id}`} className="text-teal-600 hover:underline">
             {t('journal_debate_source')}: {journal.debate_title}

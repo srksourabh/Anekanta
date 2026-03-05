@@ -96,12 +96,12 @@ function LoginForm() {
         </form>
         <div className="text-center text-sm space-y-2">
           <p className="text-stone-500">
-            <Link href="/auth/reset-password" className="text-saffron-600 hover:underline">
+            <Link href="/auth/reset-password" className="text-teal-600 hover:underline">
               Forgot password?
             </Link>
           </p>
           <p className="text-stone-500">
-            {t('auth_new_here')} <Link href="/auth/register" className="text-saffron-600 hover:underline">{t('auth_create_account')}</Link>
+            {t('auth_new_here')} <Link href="/auth/register" className="text-teal-600 hover:underline">{t('auth_create_account')}</Link>
           </p>
         </div>
       </div>

@@ -61,8 +61,8 @@ export function ArgumentNode({ arg, debateId, onAddArgument, onVote, isLoggedIn,
   const hasChildren = proChildren.length > 0 || conChildren.length > 0;
 
   const borderClass = arg.type === 'pro' ? 'tree-line-pro' : arg.type === 'con' ? 'tree-line-con' : 'tree-line-thesis';
-  const bgClass = arg.type === 'pro' ? 'bg-green-50/50' : arg.type === 'con' ? 'bg-red-50/50' : 'bg-earth-50/30';
-  const labelColor = arg.type === 'pro' ? 'text-green-700 bg-green-100' : arg.type === 'con' ? 'text-red-700 bg-red-100' : 'text-earth-700 bg-earth-100';
+  const bgClass = arg.type === 'pro' ? 'bg-green-50/50' : arg.type === 'con' ? 'bg-red-50/50' : 'bg-teal-50/30';
+  const labelColor = arg.type === 'pro' ? 'text-green-700 bg-green-100' : arg.type === 'con' ? 'text-red-700 bg-red-100' : 'text-teal-700 bg-teal-100';
 
   const handleSubmit = async (type: 'pro' | 'con') => {
     if (!newContent.trim()) return;

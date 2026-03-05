@@ -161,7 +161,7 @@ export function DualColumnTree({
         {!isRoot && (
           <button
             onClick={handleGoBack}
-            className="flex items-center gap-1 text-xs text-stone-500 hover:text-saffron-600 transition-colors mb-3"
+            className="flex items-center gap-1 text-xs text-stone-500 hover:text-teal-600 transition-colors mb-3"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -174,7 +174,7 @@ export function DualColumnTree({
         <div className="flex items-center gap-2 mb-3">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-            style={{ backgroundColor: focusedNode.author_color || '#a97847' }}
+            style={{ backgroundColor: focusedNode.author_color || '#0f766e' }}
           >
             {(focusedAuthor || '?')[0].toUpperCase()}
           </div>

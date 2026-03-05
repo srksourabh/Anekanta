@@ -44,7 +44,7 @@ export default function CommunityPage() {
           { label: t('community_total_votes'), value: stats.totalVotes },
         ].map(s => (
           <div key={s.label} className="card p-4 text-center">
-            <div className="text-2xl font-heading font-bold text-earth-700">{s.value}</div>
+            <div className="text-2xl font-heading font-bold text-stone-700">{s.value}</div>
             <div className="text-xs text-stone-500">{s.label}</div>
           </div>
         ))}
@@ -62,7 +62,7 @@ export default function CommunityPage() {
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0" style={{ backgroundColor: m.avatar_color }}>
                   {m.display_name?.[0]?.toUpperCase()}
                 </div>
-                <Link href={`/profile/${m.id}`} className="flex-1 text-sm font-medium text-stone-800 hover:text-earth-700">
+                <Link href={`/profile/${m.id}`} className="flex-1 text-sm font-medium text-stone-800 hover:text-stone-700">
                   {m.display_name}
                   <span className="text-stone-400 ml-1">@{m.username}</span>
                 </Link>

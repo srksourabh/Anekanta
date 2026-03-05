@@ -17,10 +17,10 @@
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-saffron-600 text-white rounded-lg hover:bg-saffron-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
+    @apply px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
   }
   .btn-secondary {
-    @apply px-4 py-2 bg-earth-100 text-earth-800 rounded-lg hover:bg-earth-200 transition-colors font-medium;
+    @apply px-4 py-2 bg-stone-100 text-stone-800 rounded-lg hover:bg-stone-200 transition-colors font-medium;
   }
   .btn-pro {
     @apply px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium;
@@ -32,7 +32,7 @@
     @apply bg-white rounded-xl border border-stone-200/80 shadow-sm;
   }
   .input-field {
-    @apply w-full px-3 py-2 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-earth-300 focus:border-transparent bg-white;
+    @apply w-full px-3 py-2 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300 focus:border-transparent bg-white;
   }
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
@@ -47,7 +47,7 @@
   border-left: 2px solid #dc2626;
 }
 .tree-line-thesis {
-  border-left: 2px solid #a97847;
+  border-left: 2px solid #0f766e;
 }
 
 /* Impact vote bar */
@@ -57,7 +57,7 @@
 
 /* Mandala decorative element */
 .mandala-bg {
-  background-image: radial-gradient(circle at 50% 50%, rgba(169, 120, 71, 0.015) 0%, transparent 70%);
+  background-image: radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.015) 0%, transparent 70%);
 }
 
 /* Dual-column claim tree */
@@ -68,7 +68,7 @@
   @apply border-l-4 border-red-400 hover:border-red-500 transition-colors;
 }
 .claim-card-thesis {
-  @apply border-l-4 border-earth-400;
+  @apply border-l-4 border-teal-400;
 }
 .column-header-pro {
   @apply bg-green-50 border-b-2 border-green-200 text-green-800;
@@ -79,7 +79,7 @@
 
 /* Breadcrumb navigation */
 .breadcrumb-item {
-  @apply text-sm text-stone-500 hover:text-earth-600 transition-colors cursor-pointer truncate max-w-[200px];
+  @apply text-sm text-stone-500 hover:text-teal-600 transition-colors cursor-pointer truncate max-w-[200px];
 }
 .breadcrumb-separator {
   @apply text-stone-300 mx-1 flex-shrink-0;

@@ -58,13 +58,13 @@ export function SourcesPanel({ debateId, onClose }: SourcesPanelProps) {
         ) : (
           <div className="space-y-3">
             {sources.map((source) => (
-              <div key={source.id} className="card p-3 space-y-2 border-l-2 border-earth-300">
+              <div key={source.id} className="card p-3 space-y-2 border-l-2 border-stone-300">
                 <div className="flex items-start justify-between">
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 text-sm font-medium text-saffron-600 hover:underline break-words"
+                    className="flex-1 text-sm font-medium text-teal-600 hover:underline break-words"
                     title={source.url}
                   >
                     {getDomain(source.url)}

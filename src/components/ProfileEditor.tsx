@@ -8,22 +8,22 @@ interface ProfileEditorProps {
 }
 
 const avatarColors = [
-  '#a97847', // earth
   '#0f766e', // teal
+  '#115e59', // teal dark
   '#be185d', // lotus
-  '#c74707', // saffron dark
   '#7b4d33', // brown
   '#14b8a6', // teal light
   '#ec4899', // pink
   '#ff7a0f', // orange
   '#059669', // emerald
   '#8b5cf6', // violet
+  '#2563eb', // blue
 ];
 
 export function ProfileEditor({ user, onUpdate }: ProfileEditorProps) {
   const [displayName, setDisplayName] = useState(user.display_name || '');
   const [bio, setBio] = useState(user.bio || '');
-  const [avatarColor, setAvatarColor] = useState(user.avatar_color || '#a97847');
+  const [avatarColor, setAvatarColor] = useState(user.avatar_color || '#0f766e');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -133,7 +133,7 @@ export function ProfileEditor({ user, onUpdate }: ProfileEditorProps) {
               type="button"
               onClick={() => setAvatarColor(color)}
               className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                avatarColor === color ? 'border-stone-800 ring-2 ring-saffron-400' : 'border-stone-200 hover:border-stone-300'
+                avatarColor === color ? 'border-stone-800 ring-2 ring-teal-400' : 'border-stone-200 hover:border-stone-300'
               }`}
               style={{ backgroundColor: color }}
               disabled={loading}

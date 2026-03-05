@@ -91,7 +91,7 @@ export default function ArticlesPage() {
                 onClick={() => { setFilter('all'); setPage(1); }}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   filter === 'all'
-                    ? 'bg-earth-600 text-white'
+                    ? 'bg-stone-600 text-white'
                     : 'bg-white text-stone-600 hover:bg-stone-50'
                 }`}
               >
@@ -101,7 +101,7 @@ export default function ArticlesPage() {
                 onClick={() => { setFilter('mine'); setPage(1); }}
                 className={`px-4 py-2 text-sm font-medium transition-colors border-l border-stone-200 ${
                   filter === 'mine'
-                    ? 'bg-earth-600 text-white'
+                    ? 'bg-stone-600 text-white'
                     : 'bg-white text-stone-600 hover:bg-stone-50'
                 }`}
               >
@@ -156,7 +156,7 @@ export default function ArticlesPage() {
                   onClick={() => setPage(p)}
                   className={`w-8 h-8 rounded-lg text-sm transition-colors ${
                     p === page
-                      ? 'bg-earth-600 text-white'
+                      ? 'bg-stone-600 text-white'
                       : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                   }`}
                 >

@@ -235,7 +235,7 @@ export function TeamsPanel({ debateId, currentUserId, onClose }: TeamsPanelProps
                       ) : (
                         <button
                           onClick={() => handleTeamAction(team.id, 'join')}
-                          className="flex-1 px-2 py-1 text-xs bg-saffron-50 text-saffron-700 rounded hover:bg-saffron-100 transition-colors"
+                          className="flex-1 px-2 py-1 text-xs bg-teal-50 text-teal-700 rounded hover:bg-teal-100 transition-colors"
                         >
                           Join
                         </button>

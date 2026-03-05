@@ -41,8 +41,8 @@ export function GuidedVoting({ debateId, onVote, onClose }: GuidedVotingProps) {
   };
 
   const VOTE_LABELS = ['No Impact', t('vote_low'), t('vote_medium'), t('vote_high'), t('vote_decisive')];
-  const VOTE_COLORS = ['bg-stone-200', 'bg-saffron-200', 'bg-saffron-300', 'bg-saffron-400', 'bg-saffron-600'];
-  const VOTE_TEXT_COLORS = ['text-stone-600', 'text-saffron-700', 'text-saffron-800', 'text-white', 'text-white'];
+  const VOTE_COLORS = ['bg-stone-200', 'bg-teal-200', 'bg-teal-300', 'bg-teal-400', 'bg-teal-600'];
+  const VOTE_TEXT_COLORS = ['text-stone-600', 'text-teal-700', 'text-teal-800', 'text-white', 'text-white'];
 
   if (loading) {
     return (
@@ -82,7 +82,7 @@ export function GuidedVoting({ debateId, onVote, onClose }: GuidedVotingProps) {
           </div>
           <div className="h-1.5 bg-stone-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-saffron-500 rounded-full transition-all"
+              className="h-full bg-teal-500 rounded-full transition-all"
               style={{ width: `${claims.length > 0 ? (currentIndex / claims.length) * 100 : 0}%` }}
             />
           </div>
@@ -118,7 +118,7 @@ export function GuidedVoting({ debateId, onVote, onClose }: GuidedVotingProps) {
                 <div className="flex items-center gap-2 mt-3 text-xs text-stone-400">
                   <div
                     className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold"
-                    style={{ backgroundColor: currentClaim.author_color || '#a97847' }}
+                    style={{ backgroundColor: currentClaim.author_color || '#0f766e' }}
                   >
                     {(currentClaim.author_name || '?')[0].toUpperCase()}
                   </div>

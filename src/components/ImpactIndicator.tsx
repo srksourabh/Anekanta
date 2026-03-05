@@ -7,7 +7,7 @@ interface ImpactIndicatorProps {
 
 function getColor(score: number): string {
   if (score >= 75) return '#0d9488'; // teal-600
-  if (score >= 50) return '#c47a2e'; // saffron-500
+  if (score >= 50) return '#0d9488'; // teal-600
   if (score >= 25) return '#d97706'; // amber-600
   return '#9ca3af'; // gray-400
 }

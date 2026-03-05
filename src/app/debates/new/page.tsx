@@ -158,8 +158,8 @@ export default function NewDebatePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-heading font-bold text-earth-900 mb-2">{t('new_debate_title')}</h1>
-      <p className="text-earth-500 mb-6 text-sm">{t('new_debate_subtitle')}</p>
+      <h1 className="text-2xl font-heading font-bold text-stone-900 mb-2">{t('new_debate_title')}</h1>
+      <p className="text-stone-500 mb-6 text-sm">{t('new_debate_subtitle')}</p>
       
       <form onSubmit={handleSubmit} className="card p-6 space-y-6">
         {error && (
@@ -170,7 +170,7 @@ export default function NewDebatePage() {
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_form_title')} *</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_form_title')} *</label>
           <input
             value={title}
             onChange={e => setTitle(e.target.value)}
@@ -179,13 +179,13 @@ export default function NewDebatePage() {
             maxLength={200}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_title')}</p>
+          <p className="text-xs text-stone-400 mt-1">{t('new_debate_hint_title')}</p>
           {renderModerationWarning('title', moderation.title)}
         </div>
 
         {/* Tagline */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_form_tagline')} *</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_form_tagline')} *</label>
           <textarea
             value={tagline}
             onChange={e => setTagline(e.target.value)}
@@ -195,13 +195,13 @@ export default function NewDebatePage() {
             maxLength={500}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_tagline')}</p>
+          <p className="text-xs text-stone-400 mt-1">{t('new_debate_hint_tagline')}</p>
           {renderModerationWarning('tagline', moderation.tagline)}
         </div>
 
         {/* Thesis */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_form_thesis')} *</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_form_thesis')} *</label>
           <textarea
             value={thesis}
             onChange={e => setThesis(e.target.value)}
@@ -211,14 +211,14 @@ export default function NewDebatePage() {
             maxLength={1000}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_thesis')}</p>
+          <p className="text-xs text-stone-400 mt-1">{t('new_debate_hint_thesis')}</p>
           {renderModerationWarning('thesis', moderation.thesis)}
         </div>
 
         {/* Arguments */}
         <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold text-earth-900 mb-4">{t('new_debate_supporting_args')}</h2>
-          <p className="text-xs text-earth-500 mb-4">{t('new_debate_supporting_args_hint')}</p>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">{t('new_debate_supporting_args')}</h2>
+          <p className="text-xs text-stone-500 mb-4">{t('new_debate_supporting_args_hint')}</p>
 
           {[
             { num: 1, value: argument1, setter: setArgument1, mod: moderation.argument1, key: 'new_debate_form_arg1' },
@@ -226,7 +226,7 @@ export default function NewDebatePage() {
             { num: 3, value: argument3, setter: setArgument3, mod: moderation.argument3, key: 'new_debate_form_arg3' },
           ].map(arg => (
             <div key={arg.num} className="mb-5">
-              <label className="block text-sm font-medium text-earth-700 mb-1">
+              <label className="block text-sm font-medium text-stone-700 mb-1">
                 {t(arg.key as any)}
               </label>
               <textarea
@@ -245,7 +245,7 @@ export default function NewDebatePage() {
 
         {/* Conclusion */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_form_conclusion')}</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_form_conclusion')}</label>
           <textarea
             value={conclusion}
             onChange={e => setConclusion(e.target.value)}
@@ -255,13 +255,13 @@ export default function NewDebatePage() {
             maxLength={800}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">{t('new_debate_hint_conclusion')}</p>
+          <p className="text-xs text-stone-400 mt-1">{t('new_debate_hint_conclusion')}</p>
           {renderModerationWarning('conclusion', moderation.conclusion)}
         </div>
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_form_category')}</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_form_category')}</label>
           <select
             value={category}
             onChange={e => setCategory(e.target.value)}
@@ -278,10 +278,10 @@ export default function NewDebatePage() {
 
         {/* Debate Settings */}
         <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold text-earth-900 mb-4">{t('new_debate_settings')}</h2>
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">{t('new_debate_settings')}</h2>
 
           {/* Anonymous toggle */}
-          <div className="flex items-center gap-3 p-3 bg-earth-50 rounded-lg mb-3">
+          <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg mb-3">
             <input
               type="checkbox"
               id="anonymous"
@@ -290,13 +290,13 @@ export default function NewDebatePage() {
               disabled={submitting}
               className="rounded"
             />
-            <label htmlFor="anonymous" className="text-sm font-medium text-earth-700 cursor-pointer">
+            <label htmlFor="anonymous" className="text-sm font-medium text-stone-700 cursor-pointer">
               {t('new_debate_form_anonymous')}
             </label>
           </div>
 
           {/* Require Approval */}
-          <div className="flex items-center gap-3 p-3 bg-earth-50 rounded-lg mb-3">
+          <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg mb-3">
             <input
               type="checkbox"
               id="requires_approval"
@@ -306,17 +306,17 @@ export default function NewDebatePage() {
               className="rounded"
             />
             <div>
-              <label htmlFor="requires_approval" className="text-sm font-medium text-earth-700 cursor-pointer">
+              <label htmlFor="requires_approval" className="text-sm font-medium text-stone-700 cursor-pointer">
                 {t('new_debate_require_approval')}
               </label>
-              <p className="text-xs text-earth-400 mt-0.5">{t('new_debate_require_approval_hint')}</p>
+              <p className="text-xs text-stone-400 mt-0.5">{t('new_debate_require_approval_hint')}</p>
             </div>
           </div>
 
           {/* Anonymous Mode */}
-          <div className="p-3 bg-earth-50 rounded-lg">
-            <label className="block text-sm font-medium text-earth-700 mb-1">{t('new_debate_anonymous_mode')}</label>
-            <p className="text-xs text-earth-400 mb-2">{t('new_debate_anonymous_mode_hint')}</p>
+          <div className="p-3 bg-stone-50 rounded-lg">
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('new_debate_anonymous_mode')}</label>
+            <p className="text-xs text-stone-400 mb-2">{t('new_debate_anonymous_mode_hint')}</p>
             <select
               value={anonymousMode}
               onChange={e => setAnonymousMode(e.target.value as 'off' | 'animal' | 'full')}
@@ -330,8 +330,8 @@ export default function NewDebatePage() {
           </div>
 
           {/* Who Can Post */}
-          <div className="p-3 bg-earth-50 rounded-lg">
-            <label className="block text-sm font-medium text-earth-700 mb-1">{t('settings_who_can_post')}</label>
+          <div className="p-3 bg-stone-50 rounded-lg">
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('settings_who_can_post')}</label>
             <select
               value="anyone"
               className="input-field w-full"
@@ -358,8 +358,8 @@ export default function NewDebatePage() {
             hasBlockedContent
               ? 'bg-red-400 cursor-not-allowed'
               : submitting
-              ? 'bg-saffron-400 cursor-wait'
-              : 'bg-saffron-600 hover:bg-saffron-700 active:bg-saffron-800'
+              ? 'bg-teal-400 cursor-wait'
+              : 'bg-teal-600 hover:bg-teal-700 active:bg-teal-800'
           }`}
         >
           {submitting ? t('new_debate_form_submitting') : t('new_debate_form_submit')}

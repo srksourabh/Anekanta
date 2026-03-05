@@ -64,11 +64,11 @@ export default function DebatesPage() {
 
       {/* Category pills */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <button onClick={() => { setCategory('all'); setPage(1); }} className={`badge cursor-pointer transition-colors ${category === 'all' ? 'bg-earth-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+        <button onClick={() => { setCategory('all'); setPage(1); }} className={`badge cursor-pointer transition-colors ${category === 'all' ? 'bg-stone-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
           {t('debates_all_categories')}
         </button>
         {CATEGORIES.map(c => (
-          <button key={c} onClick={() => { setCategory(c); setPage(1); }} className={`badge cursor-pointer capitalize transition-colors ${category === c ? 'bg-earth-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+          <button key={c} onClick={() => { setCategory(c); setPage(1); }} className={`badge cursor-pointer capitalize transition-colors ${category === c ? 'bg-stone-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
             {getCategoryLabel(c)}
           </button>
         ))}
@@ -90,7 +90,7 @@ export default function DebatesPage() {
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-8">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded text-sm ${p === page ? 'bg-earth-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
+                <button key={p} onClick={() => setPage(p)} className={`w-8 h-8 rounded text-sm ${p === page ? 'bg-stone-600 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}>
                   {p}
                 </button>
               ))}

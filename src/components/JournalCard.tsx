@@ -46,7 +46,7 @@ export function JournalCard({ journal }: { journal: Journal }) {
           )}
           <div className="flex items-center gap-4 text-xs text-stone-400">
             <span>
-              {t('journal_editor')}: <span className="font-medium" style={{ color: journal.editor_color || '#a97847' }}>{journal.editor_name}</span>
+              {t('journal_editor')}: <span className="font-medium" style={{ color: journal.editor_color || '#0f766e' }}>{journal.editor_name}</span>
             </span>
             {journal.published_at ? (
               <span>{t('journal_published_on')} {new Date(journal.published_at).toLocaleDateString()}</span>

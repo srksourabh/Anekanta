@@ -16,8 +16,8 @@ export function StructuredDebateLayout({ debate, tags, children }: StructuredDeb
     <div className="space-y-6">
       {/* Thesis Card — prominent, centered */}
       {debate.thesis && (
-        <div className="card p-6 border-l-4 border-saffron-400 bg-gradient-to-r from-saffron-50/30 to-transparent">
-          <p className="text-[10px] font-medium text-saffron-600 uppercase tracking-wider mb-2">{t('debate_thesis')}</p>
+        <div className="card p-6 border-l-4 border-teal-400 bg-gradient-to-r from-teal-50/30 to-transparent">
+          <p className="text-[10px] font-medium text-teal-600 uppercase tracking-wider mb-2">{t('debate_thesis')}</p>
           <p className="text-stone-800 text-base leading-relaxed">{debate.thesis}</p>
         </div>
       )}
@@ -45,8 +45,8 @@ export function StructuredDebateLayout({ debate, tags, children }: StructuredDeb
 
       {/* Conclusion — at the bottom */}
       {debate.conclusion && (
-        <div className="card p-5 border-l-4 border-earth-300 bg-earth-50/50 mt-8">
-          <p className="text-[10px] font-medium text-earth-600 uppercase tracking-wider mb-2">{t('debate_conclusion')}</p>
+        <div className="card p-5 border-l-4 border-stone-300 bg-stone-50/50 mt-8">
+          <p className="text-[10px] font-medium text-stone-600 uppercase tracking-wider mb-2">{t('debate_conclusion')}</p>
           <p className="text-stone-700 text-sm leading-relaxed">{debate.conclusion}</p>
         </div>
       )}

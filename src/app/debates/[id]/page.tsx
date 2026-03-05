@@ -222,7 +222,7 @@ export default function DebatePage() {
       <div className="mb-6">
         <Link href="/debates" className="text-sm text-stone-500 hover:text-stone-700 mb-2 inline-block">{t('all_debates_link')}</Link>
         <div className="flex items-start gap-2 mb-2">
-          <span className="badge bg-earth-100 text-earth-700 text-[10px] capitalize mt-1">{getCategoryLabel(debate.category)}</span>
+          <span className="badge bg-stone-100 text-stone-700 text-[10px] capitalize mt-1">{getCategoryLabel(debate.category)}</span>
           <h1 className="text-2xl md:text-3xl font-heading font-bold text-stone-800">{debate.title}</h1>
         </div>
         {debate.description && <p className="text-stone-500 mb-3 max-w-3xl">{debate.description}</p>}
@@ -298,7 +298,7 @@ export default function DebatePage() {
             Perspectives
           </button>
           {user && (
-            <button onClick={() => setShowGuidedVoting(true)} className="px-3 py-1.5 rounded-lg text-sm bg-saffron-100 text-saffron-700 hover:bg-saffron-200 transition-colors">
+            <button onClick={() => setShowGuidedVoting(true)} className="px-3 py-1.5 rounded-lg text-sm bg-teal-100 text-teal-700 hover:bg-teal-200 transition-colors">
               {t('guided_voting_title')}
             </button>
           )}
@@ -309,7 +309,7 @@ export default function DebatePage() {
             <button
               onClick={handleCreateJournal}
               disabled={creatingJournal}
-              className="px-3 py-1.5 rounded-lg text-sm bg-earth-100 text-earth-700 hover:bg-earth-200 transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors disabled:opacity-50"
             >
               {creatingJournal ? '...' : t('journal_from_debate')}
             </button>
@@ -332,7 +332,7 @@ export default function DebatePage() {
 
           {user && (debate.author_id === user.id || user.role === 'admin') && (
             <div className="relative">
-              <button onClick={() => setShowDebateMenu(!showDebateMenu)} className="px-3 py-1.5 rounded-lg text-sm bg-earth-100 text-earth-700 hover:bg-earth-200 transition-colors">
+              <button onClick={() => setShowDebateMenu(!showDebateMenu)} className="px-3 py-1.5 rounded-lg text-sm bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors">
                 ⋮
               </button>
               {showDebateMenu && (
@@ -373,7 +373,7 @@ export default function DebatePage() {
       {view === 'dual' ? (
         <StructuredDebateLayout debate={debate} tags={tags}>
           {!user && (
-            <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 mb-4 text-sm text-teal-800">
               <Link href="/auth/login" className="font-medium underline">{t('sign_in_prompt')}</Link> {t('sign_in_to_participate')}
             </div>
           )}
@@ -400,7 +400,7 @@ export default function DebatePage() {
       ) : view === 'tree' ? (
         <div>
           {!user && (
-            <div className="bg-saffron-50 border border-saffron-200 rounded-lg p-3 mb-4 text-sm text-saffron-800">
+            <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 mb-4 text-sm text-teal-800">
               <Link href="/auth/login" className="font-medium underline">{t('sign_in_prompt')}</Link> {t('sign_in_to_participate')}
             </div>
           )}

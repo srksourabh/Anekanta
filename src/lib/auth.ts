@@ -26,7 +26,7 @@ export async function createUser(username: string, email: string, password: stri
   const db = await getDb();
   const id = nanoid();
   const hash = await bcrypt.hash(password, 12);
-  const colors = ['#a97847', '#0f766e', '#be185d', '#c74707', '#7b4d33', '#14b8a6', '#ec4899', '#ff7a0f'];
+  const colors = ['#0f766e', '#115e59', '#be185d', '#14b8a6', '#7b4d33', '#ec4899', '#ff7a0f', '#059669'];
   const color = colors[Math.floor(Math.random() * colors.length)];
 
   await db.prepare(`INSERT INTO users (id, username, email, password_hash, display_name, avatar_color, role) VALUES (?, ?, ?, ?, ?, ?, ?)`)
@@ -71,7 +71,7 @@ export async function findOrCreateOAuthUser(
 
   // 3. Create new user (no password)
   const id = nanoid();
-  const colors = ['#a97847', '#0f766e', '#be185d', '#c74707', '#7b4d33', '#14b8a6', '#ec4899', '#ff7a0f'];
+  const colors = ['#0f766e', '#115e59', '#be185d', '#14b8a6', '#7b4d33', '#ec4899', '#ff7a0f', '#059669'];
   const color = colors[Math.floor(Math.random() * colors.length)];
   // Generate unique username from display name
   const baseUsername = displayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || 'user';

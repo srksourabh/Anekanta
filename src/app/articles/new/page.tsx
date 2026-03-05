@@ -139,10 +139,10 @@ export default function NewArticlePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-heading font-bold text-earth-900 mb-2">
+      <h1 className="text-2xl font-heading font-bold text-stone-900 mb-2">
         {t('article_new_title')}
       </h1>
-      <p className="text-earth-500 mb-6 text-sm">
+      <p className="text-stone-500 mb-6 text-sm">
         {t('articles_write')}
       </p>
 
@@ -155,7 +155,7 @@ export default function NewArticlePage() {
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {t('article_form_title')} *
           </label>
           <input
@@ -170,7 +170,7 @@ export default function NewArticlePage() {
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {t('new_debate_form_category')}
           </label>
           <select
@@ -189,7 +189,7 @@ export default function NewArticlePage() {
 
         {/* Summary */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {t('article_form_summary')}
           </label>
           <textarea
@@ -205,7 +205,7 @@ export default function NewArticlePage() {
 
         {/* Content */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {t('article_form_content')} *
           </label>
           <textarea
@@ -220,7 +220,7 @@ export default function NewArticlePage() {
 
         {/* Cover image URL */}
         <div>
-          <label className="block text-sm font-medium text-earth-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {t('article_attachment_image')}
           </label>
           <input
@@ -230,21 +230,21 @@ export default function NewArticlePage() {
             placeholder={t('article_attachment_url')}
             disabled={submitting}
           />
-          <p className="text-xs text-earth-400 mt-1">Optional cover image URL</p>
+          <p className="text-xs text-stone-400 mt-1">Optional cover image URL</p>
         </div>
 
         {/* Attachments */}
         <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold text-earth-900 mb-4">
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">
             {t('article_attachments')}
           </h2>
 
           {attachments.length > 0 && (
             <div className="space-y-4 mb-4">
               {attachments.map((att, index) => (
-                <div key={index} className="p-4 bg-earth-50 rounded-lg border border-earth-100">
+                <div key={index} className="p-4 bg-stone-50 rounded-lg border border-stone-100">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-earth-700">
+                    <span className="text-sm font-medium text-stone-700">
                       #{index + 1}
                     </span>
                     <button
@@ -269,7 +269,7 @@ export default function NewArticlePage() {
                           onClick={() => updateAttachment(index, 'type', type)}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                             att.type === type
-                              ? 'bg-earth-600 text-white'
+                              ? 'bg-stone-600 text-white'
                               : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
                           }`}
                         >
@@ -304,7 +304,7 @@ export default function NewArticlePage() {
           <button
             type="button"
             onClick={addAttachment}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-earth-600 bg-earth-50 hover:bg-earth-100 border border-earth-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-stone-600 bg-stone-50 hover:bg-stone-100 border border-stone-200 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -319,8 +319,8 @@ export default function NewArticlePage() {
           disabled={submitting}
           className={`w-full py-3 rounded-lg font-medium text-white transition ${
             submitting
-              ? 'bg-saffron-400 cursor-wait'
-              : 'bg-saffron-600 hover:bg-saffron-700 active:bg-saffron-800'
+              ? 'bg-teal-400 cursor-wait'
+              : 'bg-teal-600 hover:bg-teal-700 active:bg-teal-800'
           }`}
         >
           {submitting ? t('new_debate_form_submitting') : t('article_form_submit')}

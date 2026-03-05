@@ -38,10 +38,10 @@ export function TagInput({ tags, onChange, placeholder = 'Add a tag...', maxTags
   return (
     <div className="flex flex-wrap gap-1.5 p-2 border border-stone-200 rounded-lg bg-white min-h-[40px]">
       {tags.map((tag, i) => (
-        <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-earth-100 text-earth-700 rounded-full text-xs">
+        <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-stone-100 text-stone-700 rounded-full text-xs">
           {tag}
           {!disabled && (
-            <button type="button" onClick={() => removeTag(i)} className="text-earth-400 hover:text-earth-600">
+            <button type="button" onClick={() => removeTag(i)} className="text-stone-400 hover:text-stone-600">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>

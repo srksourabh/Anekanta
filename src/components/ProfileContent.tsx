@@ -43,7 +43,7 @@ export function ProfileContent({ user, stats, debates }: ProfileContentProps) {
             { label: t('profile_stat_comments'), value: stats.comments },
           ].map(s => (
             <div key={s.label}>
-              <div className="text-lg font-heading font-bold text-earth-700">{s.value}</div>
+              <div className="text-lg font-heading font-bold text-teal-700">{s.value}</div>
               <div className="text-xs text-stone-500">{s.label}</div>
             </div>
           ))}

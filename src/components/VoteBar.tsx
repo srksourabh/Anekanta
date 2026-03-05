@@ -38,9 +38,9 @@ export function VoteBar({ argId, score, userVote, onVote, isLoggedIn }: VoteBarP
             disabled={!isLoggedIn}
             className={`w-5 h-5 rounded-sm transition-all text-[9px] font-bold
               ${currentVote === v
-                ? 'bg-saffron-500 text-white'
+                ? 'bg-teal-500 text-white'
                 : hoveredValue && v <= hoveredValue
-                  ? 'bg-saffron-200 text-saffron-700'
+                  ? 'bg-teal-200 text-teal-700'
                   : 'bg-stone-100 text-stone-400 hover:bg-stone-200'
               }
               ${!isLoggedIn ? 'cursor-default' : 'cursor-pointer'}

@@ -22,7 +22,7 @@ interface ArcData {
 }
 
 const COLORS = {
-  thesis: '#c47a2e',  // saffron
+  thesis: '#0d9488',  // saffron
   pro: '#16a34a',     // green
   con: '#dc2626',     // red
 };

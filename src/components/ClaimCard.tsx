@@ -77,7 +77,7 @@ export function ClaimCard({
       >
         {/* Pinned indicator */}
         {isPinned && (
-          <div className="flex items-center gap-1 text-[10px] text-saffron-600 font-medium mb-1.5">
+          <div className="flex items-center gap-1 text-[10px] text-teal-600 font-medium mb-1.5">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 5a2 2 0 012-2h6a2 2 0 012 2v2a2 2 0 01-2 2H7a2 2 0 01-2-2V5zm6 6a1 1 0 10-2 0v5a1 1 0 102 0v-5z"/></svg>
             {t('pinned')}
           </div>
@@ -87,7 +87,7 @@ export function ClaimCard({
         <div className="flex items-center gap-2 mb-2.5">
           <div
             className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-            style={{ backgroundColor: arg.author_color || '#a97847' }}
+            style={{ backgroundColor: arg.author_color || '#0f766e' }}
           >
             {(authorLabel || '?')[0].toUpperCase()}
           </div>
@@ -173,7 +173,7 @@ export function ClaimCard({
             {shouldTruncate && (
               <button
                 onClick={(e) => { e.stopPropagation(); setExpanded(true); }}
-                className="text-xs text-saffron-600 hover:text-saffron-700 mt-1"
+                className="text-xs text-teal-600 hover:text-teal-700 mt-1"
               >
                 {t('claim_show_more')}
               </button>
@@ -191,7 +191,7 @@ export function ClaimCard({
             {hasChildren && canExpandInline && (
               <button
                 onClick={(e) => { e.stopPropagation(); setInlineExpanded(!inlineExpanded); }}
-                className="flex items-center gap-1.5 hover:text-saffron-600 transition-colors"
+                className="flex items-center gap-1.5 hover:text-teal-600 transition-colors"
                 title={inlineExpanded ? t('view_collapse_inline') : t('view_expand_inline')}
               >
                 <svg className={`w-3.5 h-3.5 transition-transform ${inlineExpanded ? 'rotate-90' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">

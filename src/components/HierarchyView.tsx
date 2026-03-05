@@ -9,7 +9,7 @@ interface HierarchyViewProps {
 }
 
 const TYPE_COLORS = {
-  thesis: { border: '#c47a2e', bg: '#fef3c7', badge: '#92400e' },
+  thesis: { border: '#0d9488', bg: '#f0fdfa', badge: '#115e59' },
   pro: { border: '#16a34a', bg: '#f0fdf4', badge: '#166534' },
   con: { border: '#dc2626', bg: '#fef2f2', badge: '#991b1b' },
 };

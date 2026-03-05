@@ -28,11 +28,11 @@ export function FocusedClaimHeader({
 
   const typeColor = arg.type === 'pro' ? 'text-green-700 bg-green-100' :
     arg.type === 'con' ? 'text-red-700 bg-red-100' :
-    'text-earth-700 bg-earth-100';
+    'text-teal-700 bg-teal-100';
 
   const borderColor = arg.type === 'pro' ? 'border-green-300' :
     arg.type === 'con' ? 'border-red-300' :
-    'border-earth-300';
+    'border-stone-300';
 
   const authorLabel = arg.is_anonymous ? t('debate_anonymous') : arg.author_name;
 
@@ -52,7 +52,7 @@ export function FocusedClaimHeader({
         {!isRoot && (
           <button
             onClick={onGoBack}
-            className="flex items-center gap-1 text-sm text-stone-500 hover:text-saffron-600 transition-colors"
+            className="flex items-center gap-1 text-sm text-stone-500 hover:text-teal-600 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -75,7 +75,7 @@ export function FocusedClaimHeader({
       <div className="flex items-center gap-2 mb-3 text-xs text-stone-500">
         <div
           className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
-          style={{ backgroundColor: arg.author_color || '#a97847' }}
+          style={{ backgroundColor: arg.author_color || '#0f766e' }}
         >
           {(authorLabel || '?')[0].toUpperCase()}
         </div>

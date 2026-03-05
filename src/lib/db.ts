@@ -137,7 +137,7 @@ async function initializeSchema(database: CompatDb) {
       password_hash TEXT,
       display_name TEXT NOT NULL,
       bio TEXT DEFAULT '',
-      avatar_color TEXT DEFAULT '#a97847',
+      avatar_color TEXT DEFAULT '#0f766e',
       role TEXT DEFAULT 'user',
       oauth_provider TEXT,
       oauth_id TEXT,

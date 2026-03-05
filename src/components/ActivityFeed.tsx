@@ -53,7 +53,7 @@ export function ActivityFeed({ debateId, limit = 15 }: ActivityFeedProps) {
                 <span className="font-medium" style={{ color: a.user_color }}>{a.user_name}</span>
                 {' '}{getActionLabel(a.action)}
                 {!debateId && a.debate_title && (
-                  <> {t('activity_in')} <Link href={`/debates/${a.debate_id}`} className="text-saffron-600 hover:underline">{a.debate_title}</Link></>
+                  <> {t('activity_in')} <Link href={`/debates/${a.debate_id}`} className="text-teal-600 hover:underline">{a.debate_title}</Link></>
                 )}
                 {meta?.type && (
                   <span className={`ml-1 badge text-[9px] ${meta.type === 'pro' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{meta.type === 'pro' ? t('debate_pro') : t('debate_con')}</span>

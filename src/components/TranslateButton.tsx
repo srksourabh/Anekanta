@@ -47,7 +47,7 @@ export function TranslateButton({ text, className = '' }: TranslateButtonProps) 
       <button
         onClick={handleTranslate}
         disabled={loading}
-        className="text-[10px] text-saffron-600 hover:text-saffron-700 hover:underline ml-1"
+        className="text-[10px] text-teal-600 hover:text-teal-700 hover:underline ml-1"
         title={translated ? 'Show original' : 'Translate'}
       >
         {loading ? '...' : translated ? '↩' : '🌐'}

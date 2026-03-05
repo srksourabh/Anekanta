@@ -25,7 +25,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
   const { t, getCategoryLabel } = useLanguage();
 
   const fallbackGradient = (color?: string) => {
-    const base = color || '#a97847';
+    const base = color || '#0f766e';
     return `linear-gradient(135deg, ${base}22 0%, ${base}44 100%)`;
   };
 
@@ -61,7 +61,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
         }}
       >
         {article.category && (
-          <span className="absolute top-3 left-3 badge bg-white/90 text-earth-700 backdrop-blur-sm text-[11px] shadow-sm">
+          <span className="absolute top-3 left-3 badge bg-white/90 text-stone-700 backdrop-blur-sm text-[11px] shadow-sm">
             {getCategoryLabel(article.category)}
           </span>
         )}
@@ -74,7 +74,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-base font-heading font-bold text-stone-800 group-hover:text-earth-700 transition-colors line-clamp-2 mb-2">
+        <h3 className="text-base font-heading font-bold text-stone-800 group-hover:text-stone-700 transition-colors line-clamp-2 mb-2">
           {article.title}
         </h3>
 
@@ -88,7 +88,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
         <div className="flex items-center gap-2 mb-3">
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-            style={{ backgroundColor: article.author_color || '#a97847' }}
+            style={{ backgroundColor: article.author_color || '#0f766e' }}
           >
             {article.author_name?.[0]?.toUpperCase() || '?'}
           </div>

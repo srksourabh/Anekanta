@@ -157,7 +157,7 @@ export default function ArticleDetailPage() {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-stone-500 mb-4">{t('article_no_content')}</p>
-        <Link href="/articles" className="text-earth-600 hover:underline">
+        <Link href="/articles" className="text-stone-600 hover:underline">
           {t('all_debates_link').replace('debates', 'articles')}
         </Link>
       </div>
@@ -169,7 +169,7 @@ export default function ArticleDetailPage() {
       {/* Back button */}
       <Link
         href="/articles"
-        className="inline-flex items-center gap-1.5 text-sm text-earth-600 hover:text-earth-800 mb-6 transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-stone-600 hover:text-stone-800 mb-6 transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -201,7 +201,7 @@ export default function ArticleDetailPage() {
             <div className="flex items-center gap-2">
               <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                style={{ backgroundColor: article.author_color || '#a97847' }}
+                style={{ backgroundColor: article.author_color || '#0f766e' }}
               >
                 {article.author_name?.[0]?.toUpperCase() || '?'}
               </div>
@@ -217,7 +217,7 @@ export default function ArticleDetailPage() {
             </div>
 
             {article.category && (
-              <span className="badge bg-earth-100 text-earth-700 text-xs">
+              <span className="badge bg-stone-100 text-stone-700 text-xs">
                 {getCategoryLabel(article.category)}
               </span>
             )}
@@ -280,7 +280,7 @@ export default function ArticleDetailPage() {
                           href={att.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block p-4 text-earth-600 hover:underline"
+                          className="block p-4 text-stone-600 hover:underline"
                         >
                           {att.url}
                         </a>
@@ -307,10 +307,10 @@ export default function ArticleDetailPage() {
                         rel="noopener noreferrer"
                         className="flex items-center gap-3 p-4 hover:bg-stone-50 transition-colors"
                       >
-                        <svg className="w-5 h-5 text-earth-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-stone-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
-                        <span className="text-earth-600 hover:underline text-sm truncate">
+                        <span className="text-stone-600 hover:underline text-sm truncate">
                           {att.title || att.url}
                         </span>
                       </a>
@@ -382,7 +382,7 @@ export default function ArticleDetailPage() {
                   <div className="flex items-center gap-2 mb-2">
                     <div
                       className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                      style={{ backgroundColor: resp.author_color || '#a97847' }}
+                      style={{ backgroundColor: resp.author_color || '#0f766e' }}
                     >
                       {resp.author_name?.[0]?.toUpperCase() || '?'}
                     </div>
@@ -453,14 +453,14 @@ export default function ArticleDetailPage() {
             <button
               type="submit"
               disabled={submittingResponse || !responseContent.trim()}
-              className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-saffron-600 hover:bg-saffron-700 active:bg-saffron-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 active:bg-teal-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submittingResponse ? t('arg_submitting') : t('debate_submit')}
             </button>
           </form>
         ) : (
           <div className="card p-4 text-center text-sm text-stone-500">
-            <Link href="/auth/login" className="text-earth-600 hover:underline font-medium">
+            <Link href="/auth/login" className="text-stone-600 hover:underline font-medium">
               {t('sign_in_prompt')}
             </Link>
             {' '}

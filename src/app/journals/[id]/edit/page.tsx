@@ -144,7 +144,7 @@ export default function JournalEditPage() {
         onChange={e => setTitle(e.target.value)}
         onBlur={saveTitle}
         disabled={journal.status !== 'draft'}
-        className="w-full text-3xl font-heading font-bold text-stone-800 bg-transparent border-b-2 border-transparent hover:border-stone-200 focus:border-saffron-400 focus:outline-none pb-2 mb-2 transition-colors disabled:hover:border-transparent"
+        className="w-full text-3xl font-heading font-bold text-stone-800 bg-transparent border-b-2 border-transparent hover:border-stone-200 focus:border-teal-400 focus:outline-none pb-2 mb-2 transition-colors disabled:hover:border-transparent"
         placeholder="Journal title..."
       />
       <p className="text-sm text-stone-400 mb-8">
@@ -170,7 +170,7 @@ export default function JournalEditPage() {
               }}
               onBlur={e => saveSection(section.id, 'title', e.target.value)}
               disabled={journal.status !== 'draft'}
-              className="w-full text-lg font-heading font-semibold text-stone-800 bg-transparent border-b border-transparent hover:border-stone-200 focus:border-saffron-400 focus:outline-none pb-1 mb-3 transition-colors disabled:hover:border-transparent"
+              className="w-full text-lg font-heading font-semibold text-stone-800 bg-transparent border-b border-transparent hover:border-stone-200 focus:border-teal-400 focus:outline-none pb-1 mb-3 transition-colors disabled:hover:border-transparent"
             />
             <textarea
               value={section.content}
@@ -182,7 +182,7 @@ export default function JournalEditPage() {
               onBlur={e => saveSection(section.id, 'content', e.target.value)}
               disabled={journal.status !== 'draft'}
               rows={6}
-              className="w-full text-stone-600 font-body leading-relaxed bg-transparent border border-transparent rounded-lg hover:border-stone-200 focus:border-saffron-400 focus:outline-none p-2 resize-y transition-colors disabled:hover:border-transparent"
+              className="w-full text-stone-600 font-body leading-relaxed bg-transparent border border-transparent rounded-lg hover:border-stone-200 focus:border-teal-400 focus:outline-none p-2 resize-y transition-colors disabled:hover:border-transparent"
               placeholder="Write this section..."
             />
           </div>

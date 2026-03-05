@@ -69,7 +69,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-3 z-50 mx-3 sm:mx-4 max-w-7xl xl:mx-auto bg-[#1c2e2e]/90 backdrop-blur-md shadow-lg rounded-2xl border border-teal-700/20">
+    <nav className="sticky top-3 z-50 mx-3 sm:mx-4 max-w-7xl xl:mx-auto bg-white/70 backdrop-blur-xl shadow-lg shadow-stone-200/50 rounded-2xl border border-white/50">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo + Brand */}
@@ -79,10 +79,10 @@ export function Navbar() {
                 <Image src="/logo.png" alt="Anekanta" width={40} height={40} className="drop-shadow-sm" />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-heading font-bold text-amber-100 leading-tight tracking-wide">
+                <span className="text-xl font-heading font-bold text-stone-900 leading-tight tracking-wide">
                   Anekanta
                 </span>
-                <span className="text-[10px] text-teal-300/70 tracking-[0.2em] uppercase leading-none hidden sm:block">
+                <span className="text-[10px] text-teal-600/70 tracking-[0.2em] uppercase leading-none hidden sm:block">
                   Many-Sided Truth
                 </span>
               </div>
@@ -109,7 +109,7 @@ export function Navbar() {
             <div className={`relative ${user ? '' : 'hidden'}`}>
               <button
                 onClick={() => { setNotifOpen(!notifOpen); setMenuOpen(false); }}
-                className="relative text-teal-200 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                className="relative text-stone-500 hover:text-teal-600 p-1.5 rounded-lg hover:bg-teal-50 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -127,7 +127,7 @@ export function Navbar() {
                     <div className="px-4 py-3 border-b border-stone-100 flex items-center justify-between">
                       <h3 className="text-sm font-semibold text-stone-800">{t('notifications_title')}</h3>
                       {unreadCount > 0 && (
-                        <button onClick={markAllRead} className="text-xs text-saffron-600 hover:underline">
+                        <button onClick={markAllRead} className="text-xs text-teal-600 hover:underline">
                           {t('notifications_mark_all_read')}
                         </button>
                       )}
@@ -146,7 +146,7 @@ export function Navbar() {
                               if (!n.read_at) markOneRead(n.id);
                               setNotifOpen(false);
                             }}
-                            className={`block px-4 py-3 hover:bg-stone-50 transition-colors border-b border-stone-50 ${!n.read_at ? 'bg-saffron-50/50' : ''}`}
+                            className={`block px-4 py-3 hover:bg-stone-50 transition-colors border-b border-stone-50 ${!n.read_at ? 'bg-teal-50/50' : ''}`}
                           >
                             <div className="flex items-start gap-2.5">
                               <div
@@ -168,7 +168,7 @@ export function Navbar() {
                                 </p>
                               </div>
                               {!n.read_at && (
-                                <div className="w-2 h-2 rounded-full bg-saffron-500 shrink-0 mt-1.5" />
+                                <div className="w-2 h-2 rounded-full bg-teal-500 shrink-0 mt-1.5" />
                               )}
                             </div>
                           </Link>
@@ -184,13 +184,13 @@ export function Navbar() {
             <div className={`relative ${user ? '' : 'hidden'}`}>
               <button
                 onClick={() => { setMenuOpen(!menuOpen); setNotifOpen(false); }}
-                className="flex items-center gap-2 text-sm px-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 text-sm px-2 py-1 rounded-lg hover:bg-teal-50 transition-colors"
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-amber-400/40" style={{ backgroundColor: user?.avatar_color || '#6b7280' }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ring-2 ring-teal-400/40" style={{ backgroundColor: user?.avatar_color || '#6b7280' }}>
                   {user?.display_name?.[0]?.toUpperCase() || '?'}
                 </div>
-                <span className="hidden sm:inline text-teal-100 text-sm">{user?.display_name || ''}</span>
-                <svg className="w-4 h-4 text-teal-300/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden sm:inline text-stone-700 text-sm">{user?.display_name || ''}</span>
+                <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -221,10 +221,10 @@ export function Navbar() {
 
             {/* Login/Register — visible when logged out */}
             <div className={`flex items-center gap-2 ${user ? 'hidden' : ''}`}>
-              <Link href="/auth/login" className="text-sm text-teal-200 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/10">
+              <Link href="/auth/login" className="text-sm text-stone-600 hover:text-teal-700 transition-colors px-3 py-1.5 rounded-lg hover:bg-teal-50">
                 {t('nav_login')}
               </Link>
-              <Link href="/auth/register" className="text-sm bg-saffron-600 text-white px-4 py-1.5 rounded-lg hover:bg-saffron-500 transition-colors font-medium shadow-sm border border-saffron-500/30">
+              <Link href="/auth/register" className="text-sm bg-teal-600 text-white px-4 py-1.5 rounded-lg hover:bg-teal-500 transition-colors font-medium shadow-sm border border-teal-500/30">
                 {t('nav_register')}
               </Link>
             </div>
@@ -232,7 +232,7 @@ export function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden text-teal-200 hover:text-white p-1.5 rounded-lg hover:bg-white/10"
+              className="md:hidden text-stone-500 hover:text-teal-600 p-1.5 rounded-lg hover:bg-teal-50"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileOpen ? (
@@ -248,7 +248,7 @@ export function Navbar() {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-teal-700/20">
+        <div className="md:hidden border-t border-stone-200">
           <div className="px-4 py-3 space-y-1">
             <MobileNavLink href="/debates" onClick={() => setMobileOpen(false)}>{t('nav_debates')}</MobileNavLink>
             <MobileNavLink href="/debates/new" onClick={() => setMobileOpen(false)}>{t('nav_new_debate')}</MobileNavLink>
@@ -269,7 +269,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="text-teal-200/90 hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/10 transition-all"
+      className="text-stone-600 hover:text-teal-700 text-sm font-medium px-3 py-2 rounded-lg hover:bg-teal-50 transition-all"
     >
       {children}
     </Link>
@@ -281,7 +281,7 @@ function MobileNavLink({ href, onClick, children }: { href: string; onClick: () 
     <Link
       href={href}
       onClick={onClick}
-      className="block text-teal-200 hover:text-white text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-white/10 transition-colors"
+      className="block text-stone-600 hover:text-teal-700 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-teal-50 transition-colors"
     >
       {children}
     </Link>

@@ -12,7 +12,7 @@ export function DebateCard({ debate }: { debate: any }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="badge bg-earth-100 text-earth-700 text-[10px] capitalize">{getCategoryLabel(debate.category)}</span>
+            <span className="badge bg-stone-100 text-stone-700 text-[10px] capitalize">{getCategoryLabel(debate.category)}</span>
           </div>
           <h3 className="font-heading font-semibold text-stone-800 text-lg mb-1 line-clamp-2">{debate.title}</h3>
           <p className="text-sm text-stone-500 line-clamp-2 mb-3">{debate.thesis}</p>

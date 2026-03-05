@@ -58,8 +58,8 @@ export function LanguageSwitcher() {
           onClick={() => setLocale(code)}
           className={`px-2 py-1 text-xs rounded transition-colors ${
             locale === code
-              ? 'bg-saffron-600 text-white font-bold'
-              : 'bg-earth-100 text-earth-700 hover:bg-saffron-100'
+              ? 'bg-teal-600 text-white font-bold'
+              : 'bg-stone-100 text-stone-600 hover:bg-teal-50'
           }`}
         >
           {name}

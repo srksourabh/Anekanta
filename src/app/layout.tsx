@@ -6,7 +6,7 @@ import { LanguageProvider } from '@/components/LanguageProvider';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 
 export const viewport: Viewport = {
-  themeColor: '#1c2e2e',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

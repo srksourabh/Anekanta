@@ -161,7 +161,7 @@ function ResetPasswordContent() {
         )}
 
         <p className="text-center text-sm text-stone-500">
-          <Link href="/auth/login" className="text-saffron-600 hover:underline">
+          <Link href="/auth/login" className="text-teal-600 hover:underline">
             Back to Login
           </Link>
         </p>

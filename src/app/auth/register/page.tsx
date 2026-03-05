@@ -103,7 +103,7 @@ export default function RegisterPage() {
           </button>
         </form>
         <p className="text-center text-sm text-stone-500">
-          {t('auth_have_account')} <Link href="/auth/login" className="text-saffron-600 hover:underline">{t('nav_login')}</Link>
+          {t('auth_have_account')} <Link href="/auth/login" className="text-teal-600 hover:underline">{t('nav_login')}</Link>
         </p>
       </div>
     </div>
