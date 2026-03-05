@@ -516,6 +516,13 @@ export const translations = {
     view_focus_claim: 'Focus',
     sunburst_click_hint: 'Click any segment to explore',
     view_sunburst: 'Sunburst',
+    view_hierarchy: 'Hierarchy',
+    notifications_title: 'Notifications',
+    notifications_empty: 'No new notifications',
+    notifications_mark_all_read: 'Mark all as read',
+    notification_added_argument: 'added an argument',
+    notification_commented: 'commented',
+    notification_in: 'in',
   },
 
   bn: {
@@ -1000,6 +1007,13 @@ export const translations = {
     view_focus_claim: 'ফোকাস',
     sunburst_click_hint: 'যেকোনো অংশে ক্লিক করুন',
     view_sunburst: 'সানবার্স্ট',
+    view_hierarchy: 'শ্রেণিবিন্যাস',
+    notifications_title: 'বিজ্ঞপ্তি',
+    notifications_empty: 'কোনো নতুন বিজ্ঞপ্তি নেই',
+    notifications_mark_all_read: 'সব পঠিত করুন',
+    notification_added_argument: 'একটি যুক্তি যোগ করেছেন',
+    notification_commented: 'মন্তব্য করেছেন',
+    notification_in: 'তে',
   },
 } as const;
 

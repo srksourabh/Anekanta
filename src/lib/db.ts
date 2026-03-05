@@ -563,4 +563,22 @@ async function initializeSchema(database: CompatDb) {
     await database.exec(`ALTER TABLE users ADD COLUMN oauth_id TEXT`);
   } catch { /* column already exists */ }
   await database.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL`);
+
+  // Notifications table
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      debate_id TEXT NOT NULL REFERENCES debates(id) ON DELETE CASCADE,
+      actor_id TEXT NOT NULL REFERENCES users(id),
+      action TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      target_id TEXT NOT NULL,
+      metadata TEXT DEFAULT '{}',
+      read_at TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_notifications_debate ON notifications(debate_id)`);
 }

@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
 import { nanoid } from 'nanoid';
+import { autoFollowDebate, createNotificationsForFollowers } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,6 +46,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   await db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'commented', 'argument', ?, ?)`)
     .run(nanoid(), arg.debate_id, user.id, params.id, JSON.stringify({}));
+
+  // Auto-follow this debate and notify other followers
+  await autoFollowDebate(user.id, arg.debate_id);
+  await createNotificationsForFollowers(arg.debate_id, user.id, 'commented', 'argument', params.id, {});
 
   const comment = await db.prepare(`
     SELECT c.*, u.display_name as author_name, u.avatar_color as author_color

@@ -17,12 +17,13 @@ import { DebateSettingsPanel } from '@/components/DebateSettingsPanel';
 import { StructuredDebateLayout } from '@/components/StructuredDebateLayout';
 import { DebateSummaryPanel } from '@/components/DebateSummaryPanel';
 import { SunburstView } from '@/components/SunburstView';
+import { HierarchyView } from '@/components/HierarchyView';
 import { useLanguage } from '@/components/LanguageProvider';
 import { getPathIds } from '@/lib/treeUtils';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 
-type ViewMode = 'dual' | 'tree' | 'activity' | 'sunburst';
+type ViewMode = 'dual' | 'tree' | 'activity' | 'sunburst' | 'hierarchy';
 
 export default function DebatePage() {
   const params = useParams();
@@ -265,10 +266,13 @@ export default function DebatePage() {
           <button onClick={() => setView('sunburst')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'sunburst' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
             {t('view_sunburst')}
           </button>
+          <button onClick={() => setView('hierarchy')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${view === 'hierarchy' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
+            {t('view_hierarchy')}
+          </button>
         </div>
 
         {/* Sort toggle (for tree views) */}
-        {(view === 'dual' || view === 'tree' || view === 'sunburst') && (
+        {(view === 'dual' || view === 'tree' || view === 'sunburst' || view === 'hierarchy') && (
           <div className="flex gap-1 bg-stone-100 rounded-lg p-1 ml-auto">
             <button onClick={() => setSortBy('votes')} className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${sortBy === 'votes' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500'}`}>
               Top Votes
@@ -416,6 +420,21 @@ export default function DebatePage() {
             <p className="text-stone-400">{t('no_thesis_found')}</p>
           )}
         </div>
+      ) : view === 'hierarchy' ? (
+        thesis ? (
+          <HierarchyView
+            thesis={thesis}
+            onDrillDown={(argId) => {
+              const path = getPathIds(thesis, argId);
+              if (path.length > 0) {
+                setView('dual');
+                handleNavigate(path);
+              }
+            }}
+          />
+        ) : (
+          <p className="text-stone-400">{t('no_thesis_found')}</p>
+        )
       ) : view === 'sunburst' ? (
         <div className="card p-6">
           {thesis ? (

@@ -3,6 +3,7 @@ import { getDb } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/moderation';
 import { nanoid } from 'nanoid';
+import { autoFollowDebate } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,6 +80,9 @@ export async function POST(req: NextRequest) {
 
   await db.prepare(`INSERT INTO activity (id, debate_id, user_id, action, target_type, target_id, metadata) VALUES (?, ?, ?, 'created', 'debate', ?, ?)`)
     .run(nanoid(), debateId, user.id, debateId, JSON.stringify({ title }));
+
+  // Auto-follow so the creator gets notified of future activity
+  await autoFollowDebate(user.id, debateId);
 
   return NextResponse.json({ id: debateId });
 }
