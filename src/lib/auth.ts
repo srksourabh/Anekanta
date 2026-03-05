@@ -15,8 +15,12 @@ export interface User {
   bio: string;
   avatar_color: string;
   role: string;
+  oauth_provider?: string | null;
+  oauth_id?: string | null;
   created_at: string;
 }
+
+const USER_COLUMNS = 'id, username, email, display_name, bio, avatar_color, role, oauth_provider, oauth_id, created_at';
 
 export async function createUser(username: string, email: string, password: string, displayName: string, role: string = 'user'): Promise<User> {
   const db = await getDb();
@@ -33,13 +37,58 @@ export async function createUser(username: string, email: string, password: stri
 
 export async function authenticateUser(email: string, password: string): Promise<User | null> {
   const db = await getDb();
-  const row = await db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
-  if (!row) return null;
-  const stored = await db.prepare(`SELECT password_hash FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
-  if (!stored) return null;
-  const valid = await bcrypt.compare(password, stored.password_hash);
+  const row = await db.prepare(`SELECT ${USER_COLUMNS}, password_hash FROM users WHERE email = ?`).get(email.toLowerCase()) as any;
+  if (!row || !row.password_hash) return null;
+  const valid = await bcrypt.compare(password, row.password_hash);
   if (!valid) return null;
-  return row as User;
+  const { password_hash: _, ...user } = row;
+  return user as User;
+}
+
+export async function findOrCreateOAuthUser(
+  provider: 'google' | 'github',
+  oauthId: string,
+  email: string,
+  displayName: string
+): Promise<User> {
+  const db = await getDb();
+
+  // 1. Check if OAuth account already linked
+  const existing = await db.prepare(
+    `SELECT ${USER_COLUMNS} FROM users WHERE oauth_provider = ? AND oauth_id = ?`
+  ).get(provider, oauthId) as User | undefined;
+  if (existing) return existing;
+
+  // 2. Check if email already exists (link OAuth to existing account)
+  const byEmail = await db.prepare(
+    `SELECT ${USER_COLUMNS} FROM users WHERE email = ?`
+  ).get(email.toLowerCase()) as User | undefined;
+  if (byEmail) {
+    await db.prepare(`UPDATE users SET oauth_provider = ?, oauth_id = ? WHERE id = ?`)
+      .run(provider, oauthId, byEmail.id);
+    return { ...byEmail, oauth_provider: provider, oauth_id: oauthId };
+  }
+
+  // 3. Create new user (no password)
+  const id = nanoid();
+  const colors = ['#a97847', '#0f766e', '#be185d', '#c74707', '#7b4d33', '#14b8a6', '#ec4899', '#ff7a0f'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  // Generate unique username from display name
+  const baseUsername = displayName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || 'user';
+  let username = baseUsername;
+  let attempt = 0;
+  while (true) {
+    const taken = await db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (!taken) break;
+    attempt++;
+    username = `${baseUsername}${attempt}`;
+  }
+
+  await db.prepare(
+    `INSERT INTO users (id, username, email, display_name, avatar_color, role, oauth_provider, oauth_id) VALUES (?, ?, ?, ?, ?, 'user', ?, ?)`
+  ).run(id, username, email.toLowerCase(), displayName, color, provider, oauthId);
+
+  return { id, username, email: email.toLowerCase(), display_name: displayName, bio: '', avatar_color: color, role: 'user', oauth_provider: provider, oauth_id: oauthId, created_at: new Date().toISOString() };
 }
 
 export async function createSession(user: User): Promise<string> {
@@ -70,7 +119,7 @@ export async function getCurrentUser(): Promise<User | null> {
     const userId = payload.userId as string;
 
     const db = await getDb();
-    const row = await db.prepare(`SELECT id, username, email, display_name, bio, avatar_color, role, created_at FROM users WHERE id = ?`).get(userId);
+    const row = await db.prepare(`SELECT ${USER_COLUMNS} FROM users WHERE id = ?`).get(userId);
     return row as User | null;
   } catch {
     return null;

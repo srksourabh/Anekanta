@@ -25,10 +25,8 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#1c2e2e] via-[#1f3838] to-[#1c2e2e] shadow-md">
-      {/* Subtle decorative top border — saffron/gold */}
-      <div className="h-1 bg-gradient-to-r from-transparent via-saffron-500 to-transparent" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-3 z-50 mx-3 sm:mx-4 max-w-7xl xl:mx-auto bg-[#1c2e2e]/90 backdrop-blur-md shadow-lg rounded-2xl border border-teal-700/20">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo + Brand */}
           <div className="flex items-center gap-8">
@@ -130,7 +128,7 @@ export function Navbar() {
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-teal-700/30 bg-[#1c2e2e]/95 backdrop-blur-sm">
+        <div className="md:hidden border-t border-teal-700/20">
           <div className="px-4 py-3 space-y-1">
             <MobileNavLink href="/debates" onClick={() => setMobileOpen(false)}>{t('nav_debates')}</MobileNavLink>
             <MobileNavLink href="/debates/new" onClick={() => setMobileOpen(false)}>{t('nav_new_debate')}</MobileNavLink>

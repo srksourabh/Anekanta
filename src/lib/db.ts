@@ -134,11 +134,13 @@ async function initializeSchema(database: CompatDb) {
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
       email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
+      password_hash TEXT,
       display_name TEXT NOT NULL,
       bio TEXT DEFAULT '',
       avatar_color TEXT DEFAULT '#a97847',
       role TEXT DEFAULT 'user',
+      oauth_provider TEXT,
+      oauth_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     )
@@ -553,4 +555,12 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_journals_editor ON journals(editor_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_journals_status ON journals(status)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_journal_sections_journal ON journal_sections(journal_id)`);
+  // Migration: add OAuth columns to existing users table
+  try {
+    await database.exec(`ALTER TABLE users ADD COLUMN oauth_provider TEXT`);
+  } catch { /* column already exists */ }
+  try {
+    await database.exec(`ALTER TABLE users ADD COLUMN oauth_id TEXT`);
+  } catch { /* column already exists */ }
+  await database.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL`);
 }
