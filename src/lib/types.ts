@@ -200,3 +200,52 @@ export interface EditorialNote {
   editor_name?: string;
   editor_color?: string;
 }
+
+// Global roles (platform-wide, assigned by admin)
+export type GlobalRole = 'editor' | 'reviewer' | 'moderator' | 'translator';
+export const GLOBAL_ROLES: readonly GlobalRole[] = ['editor', 'reviewer', 'moderator', 'translator'] as const;
+
+// Article attachments
+export type ArticleAttachmentType = 'youtube' | 'image' | 'link';
+export interface ArticleAttachment {
+  id: string;
+  article_id: string;
+  type: ArticleAttachmentType;
+  url: string;
+  title: string;
+  description: string;
+  sort_order: number;
+  created_at: string;
+}
+
+// Journal system
+export type JournalStatus = 'draft' | 'under_review' | 'published';
+export type JournalSectionType = 'abstract' | 'thesis_analysis' | 'pro_synthesis' | 'con_synthesis' | 'conclusion' | 'references';
+
+export interface Journal {
+  id: string;
+  debate_id: string;
+  title: string;
+  status: JournalStatus;
+  editor_id: string;
+  reviewer_id: string | null;
+  review_notes: string;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  editor_name?: string;
+  editor_color?: string;
+  debate_title?: string;
+  section_count?: number;
+}
+
+export interface JournalSection {
+  id: string;
+  journal_id: string;
+  section_type: JournalSectionType;
+  title: string;
+  content: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

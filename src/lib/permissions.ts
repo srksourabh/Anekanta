@@ -1,5 +1,6 @@
 import { getDb } from './db';
 import type { User } from './auth';
+import type { GlobalRole } from './types';
 
 /**
  * Check if a user has a specific role (moderator/editor) for a given debate.
@@ -82,4 +83,42 @@ export async function canPostArgument(user: User, debateId: string): Promise<{ a
   }
 
   return { allowed: true };
+}
+
+// ── Global Role Functions ──
+
+/**
+ * Check if a user has a specific global role (editor/reviewer/moderator/translator).
+ */
+export async function hasGlobalRole(userId: string, role: GlobalRole): Promise<boolean> {
+  const db = await getDb();
+  const row = await db.prepare(
+    'SELECT id FROM user_roles WHERE user_id = ? AND role = ?'
+  ).get(userId, role);
+  return !!row;
+}
+
+/**
+ * Get all global roles for a user.
+ */
+export async function getUserGlobalRoles(userId: string): Promise<GlobalRole[]> {
+  const db = await getDb();
+  const rows = await db.prepare(
+    'SELECT role FROM user_roles WHERE user_id = ?'
+  ).all(userId) as any[];
+  return rows.map(r => r.role as GlobalRole);
+}
+
+/**
+ * Check if user is a global editor.
+ */
+export async function isGlobalEditor(userId: string): Promise<boolean> {
+  return hasGlobalRole(userId, 'editor');
+}
+
+/**
+ * Check if user is a global reviewer.
+ */
+export async function isGlobalReviewer(userId: string): Promise<boolean> {
+  return hasGlobalRole(userId, 'reviewer');
 }

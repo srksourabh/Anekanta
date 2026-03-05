@@ -53,6 +53,7 @@ export default function DebatePage() {
   const [tags, setTags] = useState<{ id: string; tag: string }[]>([]);
   const [showSummary, setShowSummary] = useState(false);
   const [impactScores, setImpactScores] = useState<Record<string, number>>({});
+  const [creatingJournal, setCreatingJournal] = useState(false);
 
   // URL-as-state: current path through the argument tree
   const [currentPath, setCurrentPath] = useState<string[]>([]);
@@ -190,6 +191,24 @@ export default function DebatePage() {
     }
   };
 
+  const handleCreateJournal = async () => {
+    if (!debate) return;
+    setCreatingJournal(true);
+    const res = await fetch('/api/journals', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ debateId: debate.id, title: `Journal: ${debate.title}` }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      router.push(`/journals/${data.id}/edit`);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Failed to create journal');
+    }
+    setCreatingJournal(false);
+  };
+
   if (loading) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-400">{t('loading_debate')}</div>;
   if (!debate) return <div className="max-w-5xl mx-auto px-4 py-12 text-center text-stone-500">{t('debate_not_found')}</div>;
 
@@ -282,6 +301,15 @@ export default function DebatePage() {
           <button onClick={() => setShowSummary(true)} className="px-3 py-1.5 rounded-lg text-sm bg-teal-100 text-teal-700 hover:bg-teal-200 transition-colors">
             {t('understanding_btn')}
           </button>
+          {user && (
+            <button
+              onClick={handleCreateJournal}
+              disabled={creatingJournal}
+              className="px-3 py-1.5 rounded-lg text-sm bg-earth-100 text-earth-700 hover:bg-earth-200 transition-colors disabled:opacity-50"
+            >
+              {creatingJournal ? '...' : t('journal_from_debate')}
+            </button>
+          )}
           {user && debate && (debate.author_id === user.id || user.role === 'admin') && debate.requires_approval === 1 && (
             <button onClick={() => setShowPendingClaims(true)} className="px-3 py-1.5 rounded-lg text-sm bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors">
               {t('suggestions_pending')}

@@ -437,6 +437,62 @@ async function initializeSchema(database: CompatDb) {
   // Add sub_category to debates
   try { await database.exec(`ALTER TABLE debates ADD COLUMN sub_category TEXT DEFAULT ''`); } catch {}
 
+  // Global user roles (editor, reviewer, moderator, translator)
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS user_roles (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT NOT NULL,
+      assigned_by TEXT NOT NULL REFERENCES users(id),
+      created_at TEXT DEFAULT (datetime('now')),
+      UNIQUE(user_id, role)
+    )
+  `);
+
+  // Article attachments (YouTube, images, links)
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS article_attachments (
+      id TEXT PRIMARY KEY,
+      article_id TEXT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+      type TEXT NOT NULL,
+      url TEXT NOT NULL,
+      title TEXT DEFAULT '',
+      description TEXT DEFAULT '',
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Journals (compiled publications from debates)
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS journals (
+      id TEXT PRIMARY KEY,
+      debate_id TEXT NOT NULL REFERENCES debates(id),
+      title TEXT NOT NULL,
+      status TEXT DEFAULT 'draft',
+      editor_id TEXT NOT NULL REFERENCES users(id),
+      reviewer_id TEXT REFERENCES users(id),
+      review_notes TEXT DEFAULT '',
+      published_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Journal sections
+  await database.exec(`
+    CREATE TABLE IF NOT EXISTS journal_sections (
+      id TEXT PRIMARY KEY,
+      journal_id TEXT NOT NULL REFERENCES journals(id) ON DELETE CASCADE,
+      section_type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '',
+      sort_order INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
   // Debate tags table
   await database.exec(`
     CREATE TABLE IF NOT EXISTS debate_tags (
@@ -490,4 +546,11 @@ async function initializeSchema(database: CompatDb) {
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_debate_tags_tag ON debate_tags(tag)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_argument_summaries_debate ON argument_summaries(debate_id)`);
   await database.exec(`CREATE INDEX IF NOT EXISTS idx_argument_summaries_argument ON argument_summaries(argument_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_user_roles_user ON user_roles(user_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_article_attachments_article ON article_attachments(article_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_journals_debate ON journals(debate_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_journals_editor ON journals(editor_id)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_journals_status ON journals(status)`);
+  await database.exec(`CREATE INDEX IF NOT EXISTS idx_journal_sections_journal ON journal_sections(journal_id)`);
 }

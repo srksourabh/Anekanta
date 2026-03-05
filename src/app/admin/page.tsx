@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/components/LanguageProvider';
+import type { GlobalRole } from '@/lib/types';
+import { GLOBAL_ROLES } from '@/lib/types';
 
 interface FlaggedItem {
   id: string;
@@ -23,12 +25,25 @@ interface Stats {
   pendingFlags: number;
 }
 
+interface UserWithRoles {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_color: string;
+  role: string;
+  globalRoles: string[];
+}
+
 export default function AdminPage() {
   const { t } = useLanguage();
   const [flagged, setFlagged] = useState<FlaggedItem[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'overview' | 'moderation'>('overview');
+  const [tab, setTab] = useState<'overview' | 'moderation' | 'roles'>('overview');
+  const [usersWithRoles, setUsersWithRoles] = useState<UserWithRoles[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
+  const [roleSearch, setRoleSearch] = useState('');
+  const [roleUpdating, setRoleUpdating] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -40,6 +55,44 @@ export default function AdminPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const loadRoles = async () => {
+    setRolesLoading(true);
+    try {
+      const res = await fetch('/api/admin/roles');
+      const data = await res.json();
+      setUsersWithRoles(data.users || []);
+    } catch { /* ignore */ }
+    setRolesLoading(false);
+  };
+
+  useEffect(() => {
+    if (tab === 'roles' && usersWithRoles.length === 0) {
+      loadRoles();
+    }
+  }, [tab]);
+
+  const toggleRole = async (userId: string, role: string, hasRole: boolean) => {
+    setRoleUpdating(`${userId}-${role}`);
+    try {
+      if (hasRole) {
+        await fetch(`/api/admin/roles?userId=${userId}&role=${role}`, { method: 'DELETE' });
+        setUsersWithRoles(prev => prev.map(u =>
+          u.id === userId ? { ...u, globalRoles: u.globalRoles.filter(r => r !== role) } : u
+        ));
+      } else {
+        await fetch('/api/admin/roles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, role }),
+        });
+        setUsersWithRoles(prev => prev.map(u =>
+          u.id === userId ? { ...u, globalRoles: [...u.globalRoles, role] } : u
+        ));
+      }
+    } catch { /* ignore */ }
+    setRoleUpdating(null);
+  };
 
   const handleAction = async (id: string, action: 'dismissed' | 'actioned') => {
     await fetch('/api/admin/flagged', {
@@ -62,6 +115,9 @@ export default function AdminPage() {
         </button>
         <button onClick={() => setTab('moderation')} className={`px-4 py-2 rounded-lg font-medium ${tab === 'moderation' ? 'bg-saffron-600 text-white' : 'bg-earth-100 text-earth-700'}`}>
           {t('admin_moderation')} {flagged.filter(f => f.status === 'pending').length > 0 && <span className="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{flagged.filter(f => f.status === 'pending').length}</span>}
+        </button>
+        <button onClick={() => setTab('roles')} className={`px-4 py-2 rounded-lg font-medium ${tab === 'roles' ? 'bg-saffron-600 text-white' : 'bg-earth-100 text-earth-700'}`}>
+          {t('admin_roles_tab')}
         </button>
       </div>
 
@@ -104,6 +160,86 @@ export default function AdminPage() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {tab === 'roles' && (
+        <div>
+          <p className="text-sm text-earth-500 mb-4">{t('admin_roles_desc')}</p>
+          <input
+            type="text"
+            placeholder={t('roles_search_users')}
+            value={roleSearch}
+            onChange={e => setRoleSearch(e.target.value)}
+            className="input-field mb-4 max-w-md"
+          />
+          {rolesLoading ? (
+            <p className="text-earth-500">{t('loading')}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-earth-200">
+                    <th className="text-left py-3 px-3 text-earth-600 font-medium">{t('display_name')}</th>
+                    {GLOBAL_ROLES.map(role => (
+                      <th key={role} className="text-center py-3 px-3 text-earth-600 font-medium">
+                        {t(`role_global_${role}` as any)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersWithRoles
+                    .filter(u => u.display_name.toLowerCase().includes(roleSearch.toLowerCase()) || u.username.toLowerCase().includes(roleSearch.toLowerCase()))
+                    .map(user => (
+                      <tr key={user.id} className="border-b border-earth-100 hover:bg-earth-50/50">
+                        <td className="py-3 px-3">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                              style={{ backgroundColor: user.avatar_color }}
+                            >
+                              {user.display_name[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-medium text-earth-800">{user.display_name}</span>
+                              {user.role === 'admin' && (
+                                <span className="ml-2 text-[10px] bg-saffron-100 text-saffron-700 px-1.5 py-0.5 rounded">admin</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        {GLOBAL_ROLES.map(role => {
+                          const hasRole = user.globalRoles.includes(role);
+                          const isUpdating = roleUpdating === `${user.id}-${role}`;
+                          return (
+                            <td key={role} className="text-center py-3 px-3">
+                              <button
+                                onClick={() => toggleRole(user.id, role, hasRole)}
+                                disabled={isUpdating}
+                                className={`w-6 h-6 rounded border-2 transition-all inline-flex items-center justify-center
+                                  ${hasRole
+                                    ? 'bg-saffron-500 border-saffron-600 text-white'
+                                    : 'border-earth-300 hover:border-saffron-400'
+                                  }
+                                  ${isUpdating ? 'opacity-50 cursor-wait' : 'cursor-pointer'}
+                                `}
+                              >
+                                {hasRole && (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </button>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
